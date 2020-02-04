@@ -14,13 +14,13 @@ package component
 
 import (
 	"errors"
-	"github.com/che-incubator/che-workspace-crd-operator/pkg/controller/workspace/server"
 	"strings"
+
+	"github.com/che-incubator/che-workspace-crd-operator/pkg/controller/workspace/server"
 
 	workspaceApi "github.com/che-incubator/che-workspace-crd-operator/pkg/apis/workspace/v1alpha1"
 	. "github.com/che-incubator/che-workspace-crd-operator/pkg/controller/workspace/config"
 	. "github.com/che-incubator/che-workspace-crd-operator/pkg/controller/workspace/model"
-	"github.com/eclipse/che-plugin-broker/model"
 	"github.com/google/uuid"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -173,9 +173,9 @@ func setupPersistentVolumeClaim(workspace *workspaceApi.Workspace, deployment *a
 
 func setupComponents(names WorkspaceProperties, devfile workspaceApi.DevfileSpec, deployment *appsv1.Deployment) (*workspaceApi.WorkspaceRouting, []ComponentInstanceStatus, []runtime.Object, error) {
 	components := devfile.Components
-	k8sObjects := []runtime.Object{}
+	var k8sObjects []runtime.Object
 
-	pluginFQNs := []model.PluginFQN{}
+	var pluginComponents []workspaceApi.ComponentSpec
 
 	componentInstanceStatuses := []ComponentInstanceStatus{}
 
@@ -185,13 +185,7 @@ func setupComponents(names WorkspaceProperties, devfile workspaceApi.DevfileSpec
 		var componentInstanceStatus *ComponentInstanceStatus
 		switch componentType {
 		case workspaceApi.CheEditor, workspaceApi.ChePlugin:
-			componentInstanceStatus, err = setupChePlugin(names, &component)
-			if err != nil {
-				return nil, nil, nil, err
-			}
-			if componentInstanceStatus.PluginFQN != nil {
-				pluginFQNs = append(pluginFQNs, *componentInstanceStatus.PluginFQN)
-			}
+			pluginComponents = append(pluginComponents, component)
 			break
 		case workspaceApi.Kubernetes, workspaceApi.Openshift:
 			componentInstanceStatus, err = setupK8sLikeComponent(names, &component)
@@ -206,14 +200,24 @@ func setupComponents(names WorkspaceProperties, devfile workspaceApi.DevfileSpec
 		k8sObjects = append(k8sObjects, componentInstanceStatus.ExternalObjects...)
 		componentInstanceStatuses = append(componentInstanceStatuses, *componentInstanceStatus)
 	}
+	pluginComponentStatuses, err := setupChePlugins(names, pluginComponents)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	// for _, pluginComponentStatus := range pluginComponentStatuses {
+	// 	if pluginComponentStatus.PluginFQN != nil {
+	// 		pluginFQNs = append(pluginFQNs, *pluginComponentStatus.PluginFQN)
+	// 	}
+	// }
+	componentInstanceStatuses = append(componentInstanceStatuses, pluginComponentStatuses...)
 
-	err := mergeWorkspaceAdditions(deployment, componentInstanceStatuses, k8sObjects)
+	err = mergeWorkspaceAdditions(deployment, componentInstanceStatuses, k8sObjects)
 	if err != nil {
 		return nil, nil, nil, err
 	}
 
 	precreateSubpathsInitContainer(names, &deployment.Spec.Template.Spec)
-	initContainersK8sObjects, err := setupPluginInitContainers(names, &deployment.Spec.Template.Spec, pluginFQNs)
+	initContainersK8sObjects, err := setupPluginInitContainers(names, &deployment.Spec.Template.Spec, pluginComponents)
 	if err != nil {
 		return nil, nil, nil, err
 	}
