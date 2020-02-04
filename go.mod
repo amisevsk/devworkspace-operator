@@ -5,9 +5,10 @@ go 1.12
 // Che Plugin Broker v3.0.0
 require github.com/eclipse/che-plugin-broker v3.0.0+incompatible
 
+replace github.com/eclipse/che-plugin-broker => /home/amisevsk/go/src/github.com/eclipse/che-plugin-broker
+
 // Operator Framework 0.12.x
 require (
-	github.com/eclipse/che-go-jsonrpc v0.0.0-20181205102516-87cdb8da2597 // indirect
 	github.com/go-logr/logr v0.1.0
 	github.com/go-openapi/spec v0.19.0
 	github.com/google/go-cmp v0.3.0
