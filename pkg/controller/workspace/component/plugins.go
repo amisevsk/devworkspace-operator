@@ -30,6 +30,12 @@ import (
 	"github.com/che-incubator/che-workspace-crd-operator/pkg/controller/workspace/model"
 )
 
+func getArtifactBrokerObjects(names model.WorkspaceProperties, podSpec *corev1.PodSpec, components []workspaceApi.ComponentSpec) ([]runtime.Object, error) {
+	var k8sObjects []runtime.Object
+
+	return k8sObjects, nil
+}
+
 // TODO : change this because we don't expect plugin metas anymore, but plugin FQNs in the config maps
 func setupPluginInitContainers(names model.WorkspaceProperties, podSpec *corev1.PodSpec, components []workspaceApi.ComponentSpec) ([]runtime.Object, error) {
 	var k8sObjects []runtime.Object

@@ -307,16 +307,17 @@ func precreateSubpathsInitContainer(names WorkspaceProperties, podSpec *corev1.P
 func mergeWorkspaceAdditions(workspaceDeployment *appsv1.Deployment, componentInstanceStatuses []ComponentInstanceStatus, k8sObjects []runtime.Object) error {
 	workspacePodAdditions := []corev1.PodTemplateSpec{}
 	for _, componentInstanceStatus := range componentInstanceStatuses {
-		if componentInstanceStatus.WorkspacePodAdditions == nil {
-			continue
+		if componentInstanceStatus.WorkspacePodAdditions != nil {
+			workspacePodAdditions = append(workspacePodAdditions, *componentInstanceStatus.WorkspacePodAdditions)
 		}
-		workspacePodAdditions = append(workspacePodAdditions, *componentInstanceStatus.WorkspacePodAdditions)
 	}
 	workspacePodTemplate := &workspaceDeployment.Spec.Template
-	containers := map[string]corev1.Container{}
-	initContainers := map[string]corev1.Container{}
-	volumes := map[string]corev1.Volume{}
-	pullSecrets := map[string]corev1.LocalObjectReference{}
+
+	// "Set"s to store k8s object names and detect duplicates
+	containerNames := map[string]bool{}
+	initContainerNames := map[string]bool{}
+	volumeNames := map[string]bool{}
+	pullSecretNames := map[string]bool{}
 
 	for _, addition := range workspacePodAdditions {
 		for annotKey, annotValue := range addition.Annotations {
@@ -328,34 +329,34 @@ func mergeWorkspaceAdditions(workspaceDeployment *appsv1.Deployment, componentIn
 		}
 
 		for _, container := range addition.Spec.Containers {
-			if _, exists := containers[container.Name]; exists {
+			if containerNames[container.Name] {
 				return errors.New("Duplicate containers in the workspace definition: " + container.Name)
 			}
-			containers[container.Name] = container
+			containerNames[container.Name] = true
 			workspacePodTemplate.Spec.Containers = append(workspacePodTemplate.Spec.Containers, container)
 		}
 
 		for _, container := range addition.Spec.InitContainers {
-			if _, exists := initContainers[container.Name]; exists {
+			if initContainerNames[container.Name] {
 				return errors.New("Duplicate init conainers in the workspace definition: " + container.Name)
 			}
-			initContainers[container.Name] = container
+			initContainerNames[container.Name] = true
 			workspacePodTemplate.Spec.InitContainers = append(workspacePodTemplate.Spec.InitContainers, container)
 		}
 
 		for _, volume := range addition.Spec.Volumes {
-			if _, exists := volumes[volume.Name]; exists {
+			if volumeNames[volume.Name] {
 				return errors.New("Duplicate volumes in the workspace definition: " + volume.Name)
 			}
-			volumes[volume.Name] = volume
+			volumeNames[volume.Name] = true
 			workspacePodTemplate.Spec.Volumes = append(workspacePodTemplate.Spec.Volumes, volume)
 		}
 
 		for _, pullSecret := range addition.Spec.ImagePullSecrets {
-			if _, exists := pullSecrets[pullSecret.Name]; exists {
+			if pullSecretNames[pullSecret.Name] {
 				continue
 			}
-			pullSecrets[pullSecret.Name] = pullSecret
+			pullSecretNames[pullSecret.Name] = true
 			workspacePodTemplate.Spec.ImagePullSecrets = append(workspacePodTemplate.Spec.ImagePullSecrets, pullSecret)
 		}
 	}
