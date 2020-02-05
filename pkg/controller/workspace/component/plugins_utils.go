@@ -41,14 +41,14 @@ func convertToComponentInstanceStatus(plugin brokerModel.ChePlugin, props model.
 	}
 	endpoints := createEndpointsFromPlugin(plugin)
 	commands := createCommandsFromPlugin(plugin, props)
-	attributes := createAttributesFromPlugin(plugin)
+	containerDescriptions := createDescriptionsFromPlugin(plugin)
 
-	// TODO: does this need to be references *everywhere*??
 	component := &model.ComponentInstanceStatus{
 		WorkspacePodAdditions:      pod,
 		ExternalObjects:            externalObjects,
 		Endpoints:                  endpoints,
 		ContributedRuntimeCommands: commands,
+		Containers:                 containerDescriptions,
 	}
 
 	return component, nil
@@ -123,12 +123,28 @@ func createCommandsFromPlugin(plugin brokerModel.ChePlugin, props model.Workspac
 	return commands
 }
 
-func createAttributesFromPlugin(plugin brokerModel.ChePlugin) map[string]string {
-	var attributes map[string]string
+func createDescriptionsFromPlugin(plugin brokerModel.ChePlugin) map[string]model.ContainerDescription {
+	var containerDescriptions map[string]model.ContainerDescription
 	for _, container := range plugin.Containers {
+		var attributes map[string]string
+		containerResources, err := convertContainerResources(container)
+		if err != nil {
+			if value, canBeConverted := containerResources.Limits.Memory().AsInt64(); canBeConverted {
+				attributes[server.MEMORY_LIMIT_ATTRIBUTE] = strconv.FormatInt(value, 10)
+			}
+			if value, canBeConverted := containerResources.Requests.Memory().AsInt64(); canBeConverted {
+				attributes[server.MEMORY_REQUEST_ATTRIBUTE] = strconv.FormatInt(value, 10)
+			}
+		}
+		attributes[server.CONTAINER_SOURCE_ATTRIBUTE] = server.TOOL_CONTAINER_SOURCE
+		attributes[server.PLUGIN_MACHINE_ATTRIBUTE] = plugin.ID
 
+		containerDescriptions[plugin.Name] = model.ContainerDescription{
+			Attributes: attributes,
+			Ports:      exposedPortsToInts(container.Ports),
+		}
 	}
-	return attributes
+	return containerDescriptions
 }
 
 // convertContainers all containers in a plugin to the corev1 spec
