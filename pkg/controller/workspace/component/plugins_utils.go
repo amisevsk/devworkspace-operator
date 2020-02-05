@@ -21,6 +21,7 @@ import (
 	k8sModelUtils "github.com/che-incubator/che-workspace-crd-operator/pkg/controller/modelutils/k8s"
 	"github.com/che-incubator/che-workspace-crd-operator/pkg/controller/workspace/config"
 	"github.com/che-incubator/che-workspace-crd-operator/pkg/controller/workspace/model"
+	"github.com/che-incubator/che-workspace-crd-operator/pkg/controller/workspace/server"
 	brokerModel "github.com/eclipse/che-plugin-broker/model"
 	"github.com/eclipse/che-plugin-broker/utils"
 	corev1 "k8s.io/api/core/v1"
@@ -39,12 +40,15 @@ func convertToComponentInstanceStatus(plugin brokerModel.ChePlugin, props model.
 		externalObjects = append(externalObjects, service)
 	}
 	endpoints := createEndpointsFromPlugin(plugin)
+	commands := createCommandsFromPlugin(plugin, props)
+	attributes := createAttributesFromPlugin(plugin)
 
 	// TODO: does this need to be references *everywhere*??
 	component := &model.ComponentInstanceStatus{
-		WorkspacePodAdditions: pod,
-		ExternalObjects:       externalObjects,
-		Endpoints:             endpoints,
+		WorkspacePodAdditions:      pod,
+		ExternalObjects:            externalObjects,
+		Endpoints:                  endpoints,
+		ContributedRuntimeCommands: commands,
 	}
 
 	return component, nil
@@ -70,7 +74,7 @@ func createPodFromPlugin(plugin brokerModel.ChePlugin, props model.WorkspaceProp
 func createServicesFromPlugin(plugin brokerModel.ChePlugin, props model.WorkspaceProperties) []*corev1.Service {
 	var services []*corev1.Service
 	for _, container := range plugin.Containers {
-		for _, service := range createK8sServicesForMachines(props, container.Name, exposedPortsToInts(container.Ports)) {
+		for _, service := range createK8sServicesForContainers(props, container.Name, exposedPortsToInts(container.Ports)) {
 			services = append(services, &service)
 		}
 	}
@@ -98,9 +102,32 @@ func createEndpointsFromPlugin(plugin brokerModel.ChePlugin) []workspaceApi.Endp
 	return endpoints
 }
 
-func createMachineAttributesForPlugin(plugin brokerModel.ChePlugin) map[string]string {
-	var attributes map[string]string
+func createCommandsFromPlugin(plugin brokerModel.ChePlugin, props model.WorkspaceProperties) []model.CheWorkspaceCommand {
+	var commands []model.CheWorkspaceCommand
 
+	for _, pluginContainer := range plugin.Containers {
+		for _, pluginCommand := range pluginContainer.Commands {
+			command := model.CheWorkspaceCommand{
+				Name:        pluginCommand.Name,
+				CommandLine: strings.Join(pluginCommand.Command, " "),
+				Type:        "custom",
+				Attributes: map[string]string{
+					server.COMMAND_WORKING_DIRECTORY_ATTRIBUTE: interpolate(pluginCommand.WorkingDir, props),
+					server.COMMAND_MACHINE_NAME_ATTRIBUTE:      pluginContainer.Name,
+				},
+			}
+			commands = append(commands, command)
+		}
+	}
+
+	return commands
+}
+
+func createAttributesFromPlugin(plugin brokerModel.ChePlugin) map[string]string {
+	var attributes map[string]string
+	for _, container := range plugin.Containers {
+
+	}
 	return attributes
 }
 

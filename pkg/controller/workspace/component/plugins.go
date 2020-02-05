@@ -63,7 +63,7 @@ func setupPluginInitContainers(names model.WorkspaceProperties, podSpec *corev1.
 		volumeMounts := []corev1.VolumeMount{
 			corev1.VolumeMount{
 				MountPath: "/plugins/",
-				Name:      ControllerCfg.GetWorkspacePVCName(),
+				Name:      config.ControllerCfg.GetWorkspacePVCName(),
 				SubPath:   names.WorkspaceId + "/plugins/",
 			},
 		}
@@ -137,7 +137,7 @@ func setupPluginInitContainers(names model.WorkspaceProperties, podSpec *corev1.
 			Image: *brokerImage,
 			Args:  args,
 
-			ImagePullPolicy:          corev1.PullPolicy(ControllerCfg.GetSidecarPullPolicy()),
+			ImagePullPolicy:          corev1.PullPolicy(config.ControllerCfg.GetSidecarPullPolicy()),
 			VolumeMounts:             volumeMounts,
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 		})
