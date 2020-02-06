@@ -166,6 +166,7 @@ func convertContainer(container brokerModel.Container, props model.WorkspaceProp
 
 	ports := k8sModelUtils.BuildContainerPorts(exposedPortsToInts(container.Ports), corev1.ProtocolTCP)
 	envVars := convertContainerEnvVars(container)
+	envVars = append(envVars, commonEnvironmentVariables(props)...)
 	volumeMounts := createVolumeMounts(props, &container.MountSources, nil, container.Volumes)
 	resources, err := convertContainerResources(container)
 	if err != nil {
