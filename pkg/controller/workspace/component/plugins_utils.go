@@ -139,7 +139,7 @@ func createDescriptionsFromPlugin(plugin brokerModel.ChePlugin) map[string]model
 		attributes[server.CONTAINER_SOURCE_ATTRIBUTE] = server.TOOL_CONTAINER_SOURCE
 		attributes[server.PLUGIN_MACHINE_ATTRIBUTE] = plugin.ID
 
-		containerDescriptions[plugin.Name] = model.ContainerDescription{
+		containerDescriptions[container.Name] = model.ContainerDescription{
 			Attributes: attributes,
 			Ports:      exposedPortsToInts(container.Ports),
 		}
