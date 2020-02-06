@@ -21,6 +21,7 @@ import (
 	metadataBroker "github.com/eclipse/che-plugin-broker/brokers/metadata"
 	brokerModel "github.com/eclipse/che-plugin-broker/model"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
@@ -130,6 +131,14 @@ func getArtifactsBrokerObjects(props model.WorkspaceProperties, components []wor
 			config.ControllerCfg.GetPluginRegistry(),
 			"--metas",
 			fmt.Sprintf("%s/%s", configMapMountPath, configMapDataName),
+		},
+		Resources: corev1.ResourceRequirements{
+			Limits: corev1.ResourceList{
+				corev1.ResourceMemory: resource.MustParse("150Mi"),
+			},
+			Requests: corev1.ResourceList{
+				corev1.ResourceMemory: resource.MustParse("150Mi"),
+			},
 		},
 	}
 
