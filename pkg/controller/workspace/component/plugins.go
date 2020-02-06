@@ -62,7 +62,7 @@ func getArtifactsBrokerObjects(props model.WorkspaceProperties, components []wor
 
 	const (
 		configMapVolumeName = "broker-config-volume"
-		configMapMountPath  = "/broker-config/"
+		configMapMountPath  = "/broker-config"
 		configMapDataName   = "config.json"
 	)
 	configMapName := fmt.Sprintf("%s.broker-config-map", props.WorkspaceId)
@@ -70,9 +70,9 @@ func getArtifactsBrokerObjects(props model.WorkspaceProperties, components []wor
 	brokerContainerName := getContainerNameFromImage(brokerImage)
 
 	// Define plugin broker configmap
-	fqns := make([]brokerModel.PluginFQN, len(components))
+	var fqns []brokerModel.PluginFQN
 	for _, component := range components {
-		fqns := append(fqns, getPluginFQN(component))
+		fqns = append(fqns, getPluginFQN(component))
 	}
 	cmData, err := json.Marshal(fqns)
 	if err != nil {
@@ -80,7 +80,8 @@ func getArtifactsBrokerObjects(props model.WorkspaceProperties, components []wor
 	}
 	cm := corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: configMapName,
+			Name:      configMapName,
+			Namespace: props.Namespace,
 			Labels: map[string]string{
 				model.WorkspaceIDLabel: props.WorkspaceId,
 			},
@@ -107,6 +108,11 @@ func getArtifactsBrokerObjects(props model.WorkspaceProperties, components []wor
 			MountPath: configMapMountPath,
 			Name:      configMapVolumeName,
 			ReadOnly:  true,
+		},
+		{
+			MountPath: "/plugins",
+			Name:      config.ControllerCfg.GetWorkspacePVCName(),
+			SubPath:   props.WorkspaceId + "/plugins",
 		},
 	}
 

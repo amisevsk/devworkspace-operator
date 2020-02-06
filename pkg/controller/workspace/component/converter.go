@@ -186,7 +186,7 @@ func setupComponents(names WorkspaceProperties, devfile workspaceApi.DevfileSpec
 		switch componentType {
 		case workspaceApi.CheEditor, workspaceApi.ChePlugin:
 			pluginComponents = append(pluginComponents, component)
-			break
+			continue
 		case workspaceApi.Kubernetes, workspaceApi.Openshift:
 			componentInstanceStatus, err = setupK8sLikeComponent(names, &component)
 			break
@@ -206,11 +206,15 @@ func setupComponents(names WorkspaceProperties, devfile workspaceApi.DevfileSpec
 	}
 
 	componentInstanceStatuses = append(componentInstanceStatuses, pluginComponentStatuses...)
+	for _, cis := range componentInstanceStatuses {
+		k8sObjects = append(k8sObjects, cis.ExternalObjects...)
+	}
 	brokerComponent, err := getArtifactsBrokerObjects(names, pluginComponents)
 	if err != nil {
 		return nil, nil, nil, err
 	}
 	componentInstanceStatuses = append(componentInstanceStatuses, brokerComponent)
+	k8sObjects = append(k8sObjects, brokerComponent.ExternalObjects...)
 
 	err = mergeWorkspaceAdditions(deployment, componentInstanceStatuses, k8sObjects)
 	if err != nil {

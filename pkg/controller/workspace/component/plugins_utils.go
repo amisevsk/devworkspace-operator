@@ -85,7 +85,7 @@ func createEndpointsFromPlugin(plugin brokerModel.ChePlugin) []workspaceApi.Endp
 	var endpoints []workspaceApi.Endpoint
 
 	for _, pluginEndpoint := range plugin.Endpoints {
-		var attributes map[workspaceApi.EndpointAttribute]string
+		attributes := map[workspaceApi.EndpointAttribute]string{}
 		// Default value of http for protocol, may be overwritten by pluginEndpoint attributes
 		attributes[workspaceApi.PROTOCOL_ENDPOINT_ATTRIBUTE] = "http"
 		attributes[workspaceApi.PUBLIC_ENDPOINT_ATTRIBUTE] = strconv.FormatBool(pluginEndpoint.Public)
@@ -124,9 +124,9 @@ func createCommandsFromPlugin(plugin brokerModel.ChePlugin, props model.Workspac
 }
 
 func createDescriptionsFromPlugin(plugin brokerModel.ChePlugin) map[string]model.ContainerDescription {
-	var containerDescriptions map[string]model.ContainerDescription
+	containerDescriptions := map[string]model.ContainerDescription{}
 	for _, container := range plugin.Containers {
-		var attributes map[string]string
+		attributes := map[string]string{}
 		containerResources, err := convertContainerResources(container)
 		if err != nil {
 			if value, canBeConverted := containerResources.Limits.Memory().AsInt64(); canBeConverted {
@@ -210,7 +210,7 @@ func convertContainerResources(container brokerModel.Container) (corev1.Resource
 
 // convertContainerEnvVars converts EnvVar model from plugin broker to corev1
 func convertContainerEnvVars(container brokerModel.Container) []corev1.EnvVar {
-	envVars := make([]corev1.EnvVar, len(container.Env)+1)
+	var envVars []corev1.EnvVar
 	for _, env := range container.Env {
 		envVars = append(envVars, corev1.EnvVar{
 			Name:  env.Name,
@@ -250,15 +250,16 @@ func getMetasForComponents(components []workspaceApi.ComponentSpec) ([]brokerMod
 
 func getPluginFQN(component workspaceApi.ComponentSpec) brokerModel.PluginFQN {
 	var pluginFQN brokerModel.PluginFQN
-	registryAndID := strings.Split(*component.Id, "#")
+	registryAndID := strings.Split(*(component.Id), "#")
 	if len(registryAndID) == 2 {
 		pluginFQN.Registry = registryAndID[0]
 		pluginFQN.ID = registryAndID[1]
 	} else if len(registryAndID) == 1 {
 		pluginFQN.ID = registryAndID[0]
 	}
-	if *component.Reference != "" {
-		pluginFQN.Reference = *component.Reference
+	reference := component.Reference
+	if reference != nil && *reference != "" {
+		pluginFQN.Reference = *reference
 	}
 	return pluginFQN
 }

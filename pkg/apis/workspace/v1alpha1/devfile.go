@@ -70,6 +70,7 @@ type ComponentSpec struct {
 
 	//fields for dockerimage type
 
+	// TODO What the
 	Image        *string    `json:"image,omitempty"`        // Specifies the docker image that should be used for component
 	MemoryLimit  *string    `json:"memoryLimit,omitempty"`  // Describes memory limit for the component. You can express memory as a plain integer or as a; fixed-point integer using one of these suffixes: E, P, T, G, M, K. You can also use the; power-of-two equivalents: Ei, Pi, Ti, Gi, Mi, Ki
 	MountSources *bool      `json:"mountSources,omitempty"` // Describes whether projects sources should be mount to the component. `CHE_PROJECTS_ROOT`; environment variable should contains a path where projects sources are mount
