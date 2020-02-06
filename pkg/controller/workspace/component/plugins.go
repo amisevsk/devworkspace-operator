@@ -14,7 +14,7 @@ package component
 
 import (
 	"encoding/json"
-	"errors"
+	"regexp"
 	"strings"
 
 	workspaceApi "github.com/che-incubator/che-workspace-crd-operator/pkg/apis/workspace/v1alpha1"
@@ -30,126 +30,7 @@ import (
 	"github.com/che-incubator/che-workspace-crd-operator/pkg/controller/workspace/model"
 )
 
-func getArtifactBrokerObjects(names model.WorkspaceProperties, podSpec *corev1.PodSpec, components []workspaceApi.ComponentSpec) ([]runtime.Object, error) {
-	var k8sObjects []runtime.Object
-
-	return k8sObjects, nil
-}
-
-// TODO : change this because we don't expect plugin metas anymore, but plugin FQNs in the config maps
-func setupPluginInitContainers(names model.WorkspaceProperties, podSpec *corev1.PodSpec, components []workspaceApi.ComponentSpec) ([]runtime.Object, error) {
-	var k8sObjects []runtime.Object
-
-	type initContainerDef struct {
-		imageName  string
-		pluginFQNs []brokerModel.PluginFQN
-	}
-
-	// TODO
-	var fqns []brokerModel.PluginFQN
-	for _, component := range components {
-		fqns = append(fqns, getPluginFQN(component))
-	}
-
-	for _, def := range []initContainerDef{
-		{
-			imageName:  "che.workspace.plugin_broker.init.image",
-			pluginFQNs: []brokerModel.PluginFQN{},
-		},
-		{
-			imageName:  "che.workspace.plugin_broker.unified.image",
-			pluginFQNs: fqns,
-		},
-	} {
-		brokerImage := config.ControllerCfg.GetProperty(def.imageName)
-		if brokerImage == nil {
-			return nil, errors.New("Unknown broker docker image for : " + def.imageName)
-		}
-
-		volumeMounts := []corev1.VolumeMount{
-			corev1.VolumeMount{
-				MountPath: "/plugins/",
-				Name:      config.ControllerCfg.GetWorkspacePVCName(),
-				SubPath:   names.WorkspaceId + "/plugins/",
-			},
-		}
-
-		containerName := strings.ReplaceAll(
-			strings.TrimSuffix(
-				strings.TrimPrefix(def.imageName, "che.workspace.plugin_"),
-				".image"),
-			".", "-")
-		args := []string{
-			"-disable-push",
-			"-runtime-id",
-			fmt.Sprintf("%s:%s:%s", names.WorkspaceId, "default", "anonymous"),
-			"--registry-address",
-			config.ControllerCfg.GetPluginRegistry(),
-		}
-
-		if len(def.pluginFQNs) > 0 {
-
-			// TODO: See how the unified broker is defined in the yaml
-			// and define it the same way here.
-			// See also how it is that we do not put volume =>
-			// => Log on the operator side to see what there is in PluginFQNs
-
-			configMapName := containerName + "-broker-config-map"
-			configMapVolume := containerName + "-broker-config-volume"
-			configMapContent, err := json.MarshalIndent(fqns, "", "")
-			if err != nil {
-				return nil, err
-			}
-
-			configMap := corev1.ConfigMap{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      configMapName,
-					Namespace: names.Namespace,
-					Labels: map[string]string{
-						model.WorkspaceIDLabel: names.WorkspaceId,
-					},
-				},
-				Data: map[string]string{
-					"config.json": string(configMapContent),
-				},
-			}
-			k8sObjects = append(k8sObjects, &configMap)
-
-			volumeMounts = append(volumeMounts, corev1.VolumeMount{
-				MountPath: "/broker-config/",
-				Name:      configMapVolume,
-				ReadOnly:  true,
-			})
-
-			podSpec.Volumes = append(podSpec.Volumes, corev1.Volume{
-				Name: configMapVolume,
-				VolumeSource: corev1.VolumeSource{
-					ConfigMap: &corev1.ConfigMapVolumeSource{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: configMapName,
-						},
-					},
-				},
-			})
-
-			args = append(args,
-				"-metas",
-				"/broker-config/config.json",
-			)
-		}
-
-		podSpec.InitContainers = append(podSpec.InitContainers, corev1.Container{
-			Name:  containerName,
-			Image: *brokerImage,
-			Args:  args,
-
-			ImagePullPolicy:          corev1.PullPolicy(config.ControllerCfg.GetSidecarPullPolicy()),
-			VolumeMounts:             volumeMounts,
-			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
-		})
-	}
-	return k8sObjects, nil
-}
+var imageRegexp = regexp.MustCompile(`[^0-9a-zA-Z]`)
 
 func setupChePlugins(props model.WorkspaceProperties, components []workspaceApi.ComponentSpec) ([]model.ComponentInstanceStatus, error) {
 	var componentInstanceStatuses []model.ComponentInstanceStatus
@@ -174,4 +55,93 @@ func setupChePlugins(props model.WorkspaceProperties, components []workspaceApi.
 	}
 
 	return componentInstanceStatuses, nil
+}
+
+func getArtifactsBrokerObjects(props model.WorkspaceProperties, components []workspaceApi.ComponentSpec) (model.ComponentInstanceStatus, error) {
+	var brokerComponent model.ComponentInstanceStatus
+
+	const (
+		configMapVolumeName = "broker-config-volume"
+		configMapMountPath  = "/broker-config/"
+		configMapDataName   = "config.json"
+	)
+	configMapName := fmt.Sprintf("%s.broker-config-map", props.WorkspaceId)
+	brokerImage := config.ControllerCfg.GetPluginArtifactsBrokerImage()
+	brokerContainerName := getContainerNameFromImage(brokerImage)
+
+	// Define plugin broker configmap
+	fqns := make([]brokerModel.PluginFQN, len(components))
+	for _, component := range components {
+		fqns := append(fqns, getPluginFQN(component))
+	}
+	cmData, err := json.Marshal(fqns)
+	if err != nil {
+		return brokerComponent, err
+	}
+	cm := corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: configMapName,
+			Labels: map[string]string{
+				model.WorkspaceIDLabel: props.WorkspaceId,
+			},
+		},
+		Data: map[string]string{
+			configMapDataName: string(cmData),
+		},
+	}
+
+	// Define volumes used by plugin broker
+	cmVolume := corev1.Volume{
+		Name: configMapVolumeName,
+		VolumeSource: corev1.VolumeSource{
+			ConfigMap: &corev1.ConfigMapVolumeSource{
+				LocalObjectReference: corev1.LocalObjectReference{
+					Name: configMapName,
+				},
+			},
+		},
+	}
+
+	cmVolumeMounts := []corev1.VolumeMount{
+		{
+			MountPath: configMapMountPath,
+			Name:      configMapVolumeName,
+			ReadOnly:  true,
+		},
+	}
+
+	initContainer := corev1.Container{
+		Name:                     brokerContainerName,
+		Image:                    brokerImage,
+		ImagePullPolicy:          corev1.PullPolicy(config.ControllerCfg.GetSidecarPullPolicy()),
+		VolumeMounts:             cmVolumeMounts,
+		TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
+		Args: []string{
+			"--disable-push",
+			"--runtime-id",
+			fmt.Sprintf("%s:%s:%s", props.WorkspaceId, "default", "anonymous"),
+			"--registry-address",
+			config.ControllerCfg.GetPluginRegistry(),
+			"--metas",
+			fmt.Sprintf("%s/%s", configMapMountPath, configMapDataName),
+		},
+	}
+
+	brokerComponent = model.ComponentInstanceStatus{
+		WorkspacePodAdditions: &corev1.PodTemplateSpec{
+			Spec: corev1.PodSpec{
+				InitContainers: []corev1.Container{initContainer},
+				Volumes:        []corev1.Volume{cmVolume},
+			},
+		},
+		ExternalObjects: []runtime.Object{&cm},
+	}
+
+	return brokerComponent, err
+}
+
+func getContainerNameFromImage(image string) string {
+	parts := strings.Split(image, "/")
+	imageName := parts[len(parts)-1]
+	return imageRegexp.ReplaceAllString(imageName, "-")
 }

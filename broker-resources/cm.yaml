@@ -1,0 +1,14 @@
+apiVersion: v1
+data:
+  config.json: '[{"id":"redhat/java11/latest","name":"java11","version":"latest","publisher":"redhat"},{"id":"eclipse/che-machine-exec-plugin/nightly","name":"che-machine-exec-plugin","version":"nightly","publisher":"eclipse"},{"id":"eclipse/che-theia/next","name":"che-theia","version":"next","publisher":"eclipse"}]'
+kind: ConfigMap
+metadata:
+  creationTimestamp: 2020-02-06T18:36:39Z
+  labels:
+    che.original_name: broker-config-map7tynz6
+    che.workspace_id: workspacehkhd578x1d23wpsr
+  name: workspacehkhd578x1d23wpsr.broker-config-map7tynz6
+  namespace: amisevsk-che
+  resourceVersion: "115434636"
+  selfLink: /api/v1/namespaces/amisevsk-che/configmaps/workspacehkhd578x1d23wpsr.broker-config-map7tynz6
+  uid: 9d226442-490f-11ea-bfc7-0cc47af70e64

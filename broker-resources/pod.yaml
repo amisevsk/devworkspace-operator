@@ -1,0 +1,550 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    openshift.io/scc: restricted
+    org.eclipse.che.container.display-name/che-machine-execk9j: che-machine-execk9j
+    org.eclipse.che.container.display-name/maven: maven
+    org.eclipse.che.container.display-name/theia-iden6m: theia-iden6m
+    org.eclipse.che.container.display-name/vscode-javaoes: vscode-javaoes
+  creationTimestamp: 2020-02-06T18:36:40Z
+  generateName: workspacehkhd578x1d23wpsr.maven-64bf885b64-
+  labels:
+    che.component.name: maven
+    che.deployment_name: workspacehkhd578x1d23wpsr.maven
+    che.original_name: maven
+    che.workspace_id: workspacehkhd578x1d23wpsr
+    pod-template-hash: "2069441620"
+  name: workspacehkhd578x1d23wpsr.maven-64bf885b64-v659k
+  namespace: amisevsk-che
+  ownerReferences:
+  - apiVersion: extensions/v1beta1
+    blockOwnerDeletion: true
+    controller: true
+    kind: ReplicaSet
+    name: workspacehkhd578x1d23wpsr.maven-64bf885b64
+    uid: 9d4f2284-490f-11ea-96a9-0cc47af70e0c
+  resourceVersion: "115434797"
+  selfLink: /api/v1/namespaces/amisevsk-che/pods/workspacehkhd578x1d23wpsr.maven-64bf885b64-v659k
+  uid: 9d50ada0-490f-11ea-96a9-0cc47af70e0c
+spec:
+  automountServiceAccountToken: true
+  containers:
+  - env:
+    - name: CHE_MACHINE_TOKEN
+      value: eyJhbGciOiJSUzI1NiIsImtpbmQiOiJtYWNoaW5lX3Rva2VuIiwia2lkIjoid29ya3NwYWNlaGtoZDU3OHgxZDIzd3BzciJ9.eyJ3c2lkIjoid29ya3NwYWNlaGtoZDU3OHgxZDIzd3BzciIsInVpZCI6ImRhYzg0NTI2LWE5YTktNDZkOC04YjMxLThhYThjM2I5ZTA4ZCIsImF1ZCI6IndvcmtzcGFjZWhraGQ1Nzh4MWQyM3dwc3IiLCJuYmYiOi0xLCJ1bmFtZSI6ImEiLCJpc3MiOiJ3c21hc3RlciIsImV4cCI6MTYxMjU1MDE5NSwiaWF0IjoxNTgxMDE0MTk1LCJqdGkiOiJmMWI4NGQxNy0yNTJlLTRkN2MtOGE4ZC0zZGVhM2UwNzM4NjkifQ.X34EjGBdcmgh9zCvVie_H7Q35pczZZfGO4vL80zoJuoDwZHndMMqIzfvlwp96Gd7-0kPMvUZ4q0Vx3aZDNwlU_Zp6aKSh8PDus6-qCo9GdVuPGOGi4vkOvH9jQB-ePQfvnx99x7fRHvpdlfgBC1vpbmXyIVI0X8WiUo5537xx-q1ehcbU6WmQ2ox5ixuMxR5Pl0Rm76wc1R8zIRa6TlbRbuedIANFvanwg5H6z9Cj4VtmndDA2usJkllBQtyGYPRTbX4PvkWm3KXPNvyej__81Mk5exygdHQh7KO8b5koZIg3sIATZS1Lwn4DbJhAhNBe24bqlUEmjKm9xcB8MIxCw
+    - name: MAVEN_CONFIG
+    - name: JAVA_OPTS
+      value: -XX:MaxRAMPercentage=50 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20
+        -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true
+        -Xms20m -Djava.security.egd=file:/dev/./urandom
+    - name: CHE_PROJECTS_ROOT
+      value: /projects
+    - name: CHE_MACHINE_AUTH_SIGNATURE__PUBLIC__KEY
+      value: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyp7PHg0O/WplEnvjBjrUcXCyrCg2ITsLdd9QSzXv+/F3MRyknKAAQtBDY9sxAyzoIA7MdKA0oG4jW32rgtbYfCaau48cv5D9m/VbMvTqBe82ypGFgzl6/i/Cb6NMc4QTDQxv1t9iQttZv08OyW92fN3JQAPYdURjqZK9SQEx5BYBuJt5R6Mg/eWhLrx8EvSYejIo1Tx6EzkQct8aiAZCKh1fF/2rmd5lxMbcw3XgjzN2T2iMab3bx95CV4YMtr7sG3PvOUYJKWATs2+TzwCEEyCUhiN+SOfTvDfrwEZEcmwBH9LIyLST4MLECnRobFl6Q4zOpL+GgnSv8z/84TgzXQIDAQAB
+    - name: CHE_API
+      value: http://che-amisevsk-che.devtools-dev.ext.devshift.net/api
+    - name: MAVEN_OPTS
+      value: -XX:MaxRAMPercentage=50 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20
+        -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true
+        -Xms20m -Djava.security.egd=file:/dev/./urandom -Duser.home=/home/user
+    - name: CHE_WORKSPACE_NAME
+      value: plain-java
+    - name: CHE_WORKSPACE_LOGS_ROOT__DIR
+      value: /workspace_logs
+    - name: CHE_MACHINE_AUTH_SIGNATURE__ALGORITHM
+      value: RSA
+    - name: CHE_WORKSPACE_NAMESPACE
+      value: a
+    - name: JAVA_TOOL_OPTIONS
+      value: -XX:MaxRAMPercentage=50 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20
+        -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true
+        -Xms20m -Djava.security.egd=file:/dev/./urandom
+    - name: CHE_MACHINE_NAME
+      value: maven
+    - name: CHE_API_INTERNAL
+      value: http://che-amisevsk-che.devtools-dev.ext.devshift.net/api
+    - name: CHE_WORKSPACE_ID
+      value: workspacehkhd578x1d23wpsr
+    - name: CHE_API_EXTERNAL
+      value: http://che-amisevsk-che.devtools-dev.ext.devshift.net/api
+    image: quay.io/eclipse/che-java11-maven:nightly
+    imagePullPolicy: IfNotPresent
+    name: maven
+    resources:
+      limits:
+        memory: "536870912"
+      requests:
+        memory: "536870912"
+    securityContext:
+      capabilities:
+        drop:
+        - KILL
+        - MKNOD
+        - SETGID
+        - SETUID
+      runAsUser: 1000420000
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /home/user/.m2
+      name: m2
+      subPath: workspacehkhd578x1d23wpsr/m2/
+    - mountPath: /workspace_logs
+      name: claim-che-workspacehhg7rs2v
+      subPath: workspacehkhd578x1d23wpsr/che-logs-maven/
+    - mountPath: /projects
+      name: claim-che-workspacekz9qp3s6
+      subPath: workspacehkhd578x1d23wpsr/projects/
+    - mountPath: /etc/ssh/private
+      name: workspacehkhd578x1d23wpsr-sshprivatekeys
+      readOnly: true
+    - mountPath: /etc/ssh/ssh_config
+      name: ssshkeyconfigvolume
+      readOnly: true
+      subPath: ssh_config
+    - mountPath: /etc/gitconfig
+      name: gitconfigvolume
+      subPath: gitconfig
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: che-workspace-token-wptcc
+      readOnly: true
+  - env:
+    - name: THEIA_PLUGINS
+      value: local-dir:///plugins/sidecars/redhat_java11_latest
+    - name: CHE_MACHINE_TOKEN
+      value: eyJhbGciOiJSUzI1NiIsImtpbmQiOiJtYWNoaW5lX3Rva2VuIiwia2lkIjoid29ya3NwYWNlaGtoZDU3OHgxZDIzd3BzciJ9.eyJ3c2lkIjoid29ya3NwYWNlaGtoZDU3OHgxZDIzd3BzciIsInVpZCI6ImRhYzg0NTI2LWE5YTktNDZkOC04YjMxLThhYThjM2I5ZTA4ZCIsImF1ZCI6IndvcmtzcGFjZWhraGQ1Nzh4MWQyM3dwc3IiLCJuYmYiOi0xLCJ1bmFtZSI6ImEiLCJpc3MiOiJ3c21hc3RlciIsImV4cCI6MTYxMjU1MDE5NSwiaWF0IjoxNTgxMDE0MTk1LCJqdGkiOiJmMWI4NGQxNy0yNTJlLTRkN2MtOGE4ZC0zZGVhM2UwNzM4NjkifQ.X34EjGBdcmgh9zCvVie_H7Q35pczZZfGO4vL80zoJuoDwZHndMMqIzfvlwp96Gd7-0kPMvUZ4q0Vx3aZDNwlU_Zp6aKSh8PDus6-qCo9GdVuPGOGi4vkOvH9jQB-ePQfvnx99x7fRHvpdlfgBC1vpbmXyIVI0X8WiUo5537xx-q1ehcbU6WmQ2ox5ixuMxR5Pl0Rm76wc1R8zIRa6TlbRbuedIANFvanwg5H6z9Cj4VtmndDA2usJkllBQtyGYPRTbX4PvkWm3KXPNvyej__81Mk5exygdHQh7KO8b5koZIg3sIATZS1Lwn4DbJhAhNBe24bqlUEmjKm9xcB8MIxCw
+    - name: CHE_PROJECTS_ROOT
+      value: /projects
+    - name: CHE_MACHINE_AUTH_SIGNATURE__PUBLIC__KEY
+      value: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyp7PHg0O/WplEnvjBjrUcXCyrCg2ITsLdd9QSzXv+/F3MRyknKAAQtBDY9sxAyzoIA7MdKA0oG4jW32rgtbYfCaau48cv5D9m/VbMvTqBe82ypGFgzl6/i/Cb6NMc4QTDQxv1t9iQttZv08OyW92fN3JQAPYdURjqZK9SQEx5BYBuJt5R6Mg/eWhLrx8EvSYejIo1Tx6EzkQct8aiAZCKh1fF/2rmd5lxMbcw3XgjzN2T2iMab3bx95CV4YMtr7sG3PvOUYJKWATs2+TzwCEEyCUhiN+SOfTvDfrwEZEcmwBH9LIyLST4MLECnRobFl6Q4zOpL+GgnSv8z/84TgzXQIDAQAB
+    - name: CHE_API
+      value: http://che-amisevsk-che.devtools-dev.ext.devshift.net/api
+    - name: CHE_WORKSPACE_NAME
+      value: plain-java
+    - name: CHE_WORKSPACE_LOGS_ROOT__DIR
+      value: /workspace_logs
+    - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+      value: /remote-endpoint/plugin-remote-endpoint
+    - name: CHE_MACHINE_AUTH_SIGNATURE__ALGORITHM
+      value: RSA
+    - name: CHE_WORKSPACE_NAMESPACE
+      value: a
+    - name: CHE_MACHINE_NAME
+      value: vscode-javaoes
+    - name: CHE_API_INTERNAL
+      value: http://che-amisevsk-che.devtools-dev.ext.devshift.net/api
+    - name: CHE_WORKSPACE_ID
+      value: workspacehkhd578x1d23wpsr
+    - name: CHE_API_EXTERNAL
+      value: http://che-amisevsk-che.devtools-dev.ext.devshift.net/api
+    image: quay.io/eclipse/che-sidecar-java:11-f76ca45
+    imagePullPolicy: Always
+    name: vscode-javaoes
+    resources:
+      limits:
+        memory: 1572864k
+      requests:
+        memory: 1572864k
+    securityContext:
+      capabilities:
+        drop:
+        - KILL
+        - MKNOD
+        - SETGID
+        - SETUID
+      runAsUser: 1000420000
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /home/theia/.m2
+      name: m2
+      subPath: workspacehkhd578x1d23wpsr/m2/
+    - mountPath: /plugins
+      name: plugins
+      subPath: workspacehkhd578x1d23wpsr/plugins/
+    - mountPath: /remote-endpoint
+      name: remote-endpoint
+    - mountPath: /workspace_logs
+      name: claim-che-workspacehhg7rs2v
+      subPath: workspacehkhd578x1d23wpsr/che-logs-maven/
+    - mountPath: /projects
+      name: claim-che-workspacekz9qp3s6
+      subPath: workspacehkhd578x1d23wpsr/projects/
+    - mountPath: /etc/ssh/private
+      name: workspacehkhd578x1d23wpsr-sshprivatekeys
+      readOnly: true
+    - mountPath: /etc/ssh/ssh_config
+      name: ssshkeyconfigvolume
+      readOnly: true
+      subPath: ssh_config
+    - mountPath: /etc/gitconfig
+      name: gitconfigvolume
+      subPath: gitconfig
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: che-workspace-token-wptcc
+      readOnly: true
+  - env:
+    - name: CHE_WORKSPACE_NAME
+      value: plain-java
+    - name: CHE_WORKSPACE_LOGS_ROOT__DIR
+      value: /workspace_logs
+    - name: CHE_MACHINE_TOKEN
+      value: eyJhbGciOiJSUzI1NiIsImtpbmQiOiJtYWNoaW5lX3Rva2VuIiwia2lkIjoid29ya3NwYWNlaGtoZDU3OHgxZDIzd3BzciJ9.eyJ3c2lkIjoid29ya3NwYWNlaGtoZDU3OHgxZDIzd3BzciIsInVpZCI6ImRhYzg0NTI2LWE5YTktNDZkOC04YjMxLThhYThjM2I5ZTA4ZCIsImF1ZCI6IndvcmtzcGFjZWhraGQ1Nzh4MWQyM3dwc3IiLCJuYmYiOi0xLCJ1bmFtZSI6ImEiLCJpc3MiOiJ3c21hc3RlciIsImV4cCI6MTYxMjU1MDE5NSwiaWF0IjoxNTgxMDE0MTk1LCJqdGkiOiJmMWI4NGQxNy0yNTJlLTRkN2MtOGE4ZC0zZGVhM2UwNzM4NjkifQ.X34EjGBdcmgh9zCvVie_H7Q35pczZZfGO4vL80zoJuoDwZHndMMqIzfvlwp96Gd7-0kPMvUZ4q0Vx3aZDNwlU_Zp6aKSh8PDus6-qCo9GdVuPGOGi4vkOvH9jQB-ePQfvnx99x7fRHvpdlfgBC1vpbmXyIVI0X8WiUo5537xx-q1ehcbU6WmQ2ox5ixuMxR5Pl0Rm76wc1R8zIRa6TlbRbuedIANFvanwg5H6z9Cj4VtmndDA2usJkllBQtyGYPRTbX4PvkWm3KXPNvyej__81Mk5exygdHQh7KO8b5koZIg3sIATZS1Lwn4DbJhAhNBe24bqlUEmjKm9xcB8MIxCw
+    - name: CHE_MACHINE_AUTH_SIGNATURE__ALGORITHM
+      value: RSA
+    - name: CHE_WORKSPACE_NAMESPACE
+      value: a
+    - name: CHE_MACHINE_NAME
+      value: che-machine-execk9j
+    - name: CHE_API_INTERNAL
+      value: http://che-amisevsk-che.devtools-dev.ext.devshift.net/api
+    - name: CHE_WORKSPACE_ID
+      value: workspacehkhd578x1d23wpsr
+    - name: CHE_PROJECTS_ROOT
+      value: /projects
+    - name: CHE_MACHINE_AUTH_SIGNATURE__PUBLIC__KEY
+      value: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyp7PHg0O/WplEnvjBjrUcXCyrCg2ITsLdd9QSzXv+/F3MRyknKAAQtBDY9sxAyzoIA7MdKA0oG4jW32rgtbYfCaau48cv5D9m/VbMvTqBe82ypGFgzl6/i/Cb6NMc4QTDQxv1t9iQttZv08OyW92fN3JQAPYdURjqZK9SQEx5BYBuJt5R6Mg/eWhLrx8EvSYejIo1Tx6EzkQct8aiAZCKh1fF/2rmd5lxMbcw3XgjzN2T2iMab3bx95CV4YMtr7sG3PvOUYJKWATs2+TzwCEEyCUhiN+SOfTvDfrwEZEcmwBH9LIyLST4MLECnRobFl6Q4zOpL+GgnSv8z/84TgzXQIDAQAB
+    - name: CHE_API_EXTERNAL
+      value: http://che-amisevsk-che.devtools-dev.ext.devshift.net/api
+    - name: CHE_API
+      value: http://che-amisevsk-che.devtools-dev.ext.devshift.net/api
+    image: quay.io/eclipse/che-machine-exec:nightly
+    imagePullPolicy: Always
+    name: che-machine-execk9j
+    ports:
+    - containerPort: 4444
+      protocol: TCP
+    resources:
+      limits:
+        memory: "134217728"
+      requests:
+        memory: "134217728"
+    securityContext:
+      capabilities:
+        drop:
+        - KILL
+        - MKNOD
+        - SETGID
+        - SETUID
+      runAsUser: 1000420000
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /workspace_logs
+      name: claim-che-workspacehhg7rs2v
+      subPath: workspacehkhd578x1d23wpsr/che-logs-maven/
+    - mountPath: /etc/ssh/private
+      name: workspacehkhd578x1d23wpsr-sshprivatekeys
+      readOnly: true
+    - mountPath: /etc/ssh/ssh_config
+      name: ssshkeyconfigvolume
+      readOnly: true
+      subPath: ssh_config
+    - mountPath: /etc/gitconfig
+      name: gitconfigvolume
+      subPath: gitconfig
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: che-workspace-token-wptcc
+      readOnly: true
+  - env:
+    - name: THEIA_PLUGINS
+      value: local-dir:///plugins
+    - name: CHE_MACHINE_TOKEN
+      value: eyJhbGciOiJSUzI1NiIsImtpbmQiOiJtYWNoaW5lX3Rva2VuIiwia2lkIjoid29ya3NwYWNlaGtoZDU3OHgxZDIzd3BzciJ9.eyJ3c2lkIjoid29ya3NwYWNlaGtoZDU3OHgxZDIzd3BzciIsInVpZCI6ImRhYzg0NTI2LWE5YTktNDZkOC04YjMxLThhYThjM2I5ZTA4ZCIsImF1ZCI6IndvcmtzcGFjZWhraGQ1Nzh4MWQyM3dwc3IiLCJuYmYiOi0xLCJ1bmFtZSI6ImEiLCJpc3MiOiJ3c21hc3RlciIsImV4cCI6MTYxMjU1MDE5NSwiaWF0IjoxNTgxMDE0MTk1LCJqdGkiOiJmMWI4NGQxNy0yNTJlLTRkN2MtOGE4ZC0zZGVhM2UwNzM4NjkifQ.X34EjGBdcmgh9zCvVie_H7Q35pczZZfGO4vL80zoJuoDwZHndMMqIzfvlwp96Gd7-0kPMvUZ4q0Vx3aZDNwlU_Zp6aKSh8PDus6-qCo9GdVuPGOGi4vkOvH9jQB-ePQfvnx99x7fRHvpdlfgBC1vpbmXyIVI0X8WiUo5537xx-q1ehcbU6WmQ2ox5ixuMxR5Pl0Rm76wc1R8zIRa6TlbRbuedIANFvanwg5H6z9Cj4VtmndDA2usJkllBQtyGYPRTbX4PvkWm3KXPNvyej__81Mk5exygdHQh7KO8b5koZIg3sIATZS1Lwn4DbJhAhNBe24bqlUEmjKm9xcB8MIxCw
+    - name: HOSTED_PLUGIN_PORT
+      value: "3130"
+    - name: CHE_PROJECTS_ROOT
+      value: /projects
+    - name: CHE_MACHINE_AUTH_SIGNATURE__PUBLIC__KEY
+      value: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyp7PHg0O/WplEnvjBjrUcXCyrCg2ITsLdd9QSzXv+/F3MRyknKAAQtBDY9sxAyzoIA7MdKA0oG4jW32rgtbYfCaau48cv5D9m/VbMvTqBe82ypGFgzl6/i/Cb6NMc4QTDQxv1t9iQttZv08OyW92fN3JQAPYdURjqZK9SQEx5BYBuJt5R6Mg/eWhLrx8EvSYejIo1Tx6EzkQct8aiAZCKh1fF/2rmd5lxMbcw3XgjzN2T2iMab3bx95CV4YMtr7sG3PvOUYJKWATs2+TzwCEEyCUhiN+SOfTvDfrwEZEcmwBH9LIyLST4MLECnRobFl6Q4zOpL+GgnSv8z/84TgzXQIDAQAB
+    - name: CHE_API
+      value: http://che-amisevsk-che.devtools-dev.ext.devshift.net/api
+    - name: CHE_WORKSPACE_NAME
+      value: plain-java
+    - name: HOSTED_PLUGIN_HOSTNAME
+      value: 0.0.0.0
+    - name: CHE_WORKSPACE_LOGS_ROOT__DIR
+      value: /workspace_logs
+    - name: CHE_MACHINE_AUTH_SIGNATURE__ALGORITHM
+      value: RSA
+    - name: CHE_WORKSPACE_NAMESPACE
+      value: a
+    - name: CHE_MACHINE_NAME
+      value: theia-iden6m
+    - name: CHE_API_INTERNAL
+      value: http://che-amisevsk-che.devtools-dev.ext.devshift.net/api
+    - name: CHE_WORKSPACE_ID
+      value: workspacehkhd578x1d23wpsr
+    - name: CHE_API_EXTERNAL
+      value: http://che-amisevsk-che.devtools-dev.ext.devshift.net/api
+    image: quay.io/eclipse/che-theia:next
+    imagePullPolicy: Always
+    name: theia-iden6m
+    ports:
+    - containerPort: 3100
+      protocol: TCP
+    - containerPort: 3100
+      protocol: TCP
+    - containerPort: 3130
+      protocol: TCP
+    - containerPort: 13131
+      protocol: TCP
+    - containerPort: 13132
+      protocol: TCP
+    - containerPort: 13133
+      protocol: TCP
+    resources:
+      limits:
+        memory: 512M
+      requests:
+        memory: 512M
+    securityContext:
+      capabilities:
+        drop:
+        - KILL
+        - MKNOD
+        - SETGID
+        - SETUID
+      runAsUser: 1000420000
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /plugins
+      name: plugins
+      subPath: workspacehkhd578x1d23wpsr/plugins/
+    - mountPath: /workspace_logs
+      name: claim-che-workspacehhg7rs2v
+      subPath: workspacehkhd578x1d23wpsr/che-logs-maven/
+    - mountPath: /projects
+      name: claim-che-workspacekz9qp3s6
+      subPath: workspacehkhd578x1d23wpsr/projects/
+    - mountPath: /etc/ssh/private
+      name: workspacehkhd578x1d23wpsr-sshprivatekeys
+      readOnly: true
+    - mountPath: /etc/ssh/ssh_config
+      name: ssshkeyconfigvolume
+      readOnly: true
+      subPath: ssh_config
+    - mountPath: /etc/gitconfig
+      name: gitconfigvolume
+      subPath: gitconfig
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: che-workspace-token-wptcc
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  imagePullSecrets:
+  - name: che-workspace-dockercfg-mqxhj
+  initContainers:
+  - env:
+    - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+      value: /remote-endpoint/plugin-remote-endpoint
+    - name: REMOTE_ENDPOINT_VOLUME_NAME
+      value: remote-endpoint
+    image: quay.io/eclipse/che-theia-endpoint-runtime-binary:next
+    imagePullPolicy: Always
+    name: remote-runtime-injectorgh9
+    resources: {}
+    securityContext:
+      capabilities:
+        drop:
+        - KILL
+        - MKNOD
+        - SETGID
+        - SETUID
+      runAsUser: 1000420000
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /remote-endpoint
+      name: remote-endpoint
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: che-workspace-token-wptcc
+      readOnly: true
+  - args:
+    - -push-endpoint
+    - ws://che-amisevsk-che.devtools-dev.ext.devshift.net/api/websocket
+    - -runtime-id
+    - workspacehkhd578x1d23wpsr:default:dac84526-a9a9-46d8-8b31-8aa8c3b9e08d
+    - -cacert
+    - ""
+    - --registry-address
+    - http://che-plugin-registry-amisevsk-che.devtools-dev.ext.devshift.net/v3
+    - -metas
+    - /broker-config/config.json
+    env:
+    - name: CHE_AUTH_ENABLED
+      value: "true"
+    - name: CHE_MACHINE_TOKEN
+      value: eyJhbGciOiJSUzI1NiIsImtpbmQiOiJtYWNoaW5lX3Rva2VuIiwia2lkIjoid29ya3NwYWNlaGtoZDU3OHgxZDIzd3BzciJ9.eyJ3c2lkIjoid29ya3NwYWNlaGtoZDU3OHgxZDIzd3BzciIsInVpZCI6ImRhYzg0NTI2LWE5YTktNDZkOC04YjMxLThhYThjM2I5ZTA4ZCIsImF1ZCI6IndvcmtzcGFjZWhraGQ1Nzh4MWQyM3dwc3IiLCJuYmYiOi0xLCJ1bmFtZSI6ImEiLCJpc3MiOiJ3c21hc3RlciIsImV4cCI6MTYxMjU1MDE5NSwiaWF0IjoxNTgxMDE0MTk1LCJqdGkiOiJmMWI4NGQxNy0yNTJlLTRkN2MtOGE4ZC0zZGVhM2UwNzM4NjkifQ.X34EjGBdcmgh9zCvVie_H7Q35pczZZfGO4vL80zoJuoDwZHndMMqIzfvlwp96Gd7-0kPMvUZ4q0Vx3aZDNwlU_Zp6aKSh8PDus6-qCo9GdVuPGOGi4vkOvH9jQB-ePQfvnx99x7fRHvpdlfgBC1vpbmXyIVI0X8WiUo5537xx-q1ehcbU6WmQ2ox5ixuMxR5Pl0Rm76wc1R8zIRa6TlbRbuedIANFvanwg5H6z9Cj4VtmndDA2usJkllBQtyGYPRTbX4PvkWm3KXPNvyej__81Mk5exygdHQh7KO8b5koZIg3sIATZS1Lwn4DbJhAhNBe24bqlUEmjKm9xcB8MIxCw
+    image: quay.io/eclipse/che-plugin-artifacts-broker:v3.1.0
+    imagePullPolicy: Always
+    name: che-plugin-artifacts-broker-v3-1-0
+    resources:
+      limits:
+        memory: 250Mi
+      requests:
+        memory: 250Mi
+    securityContext:
+      capabilities:
+        drop:
+        - KILL
+        - MKNOD
+        - SETGID
+        - SETUID
+      runAsUser: 1000420000
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /broker-config/
+      name: broker-config-volumegibbg4
+      readOnly: true
+    - mountPath: /plugins
+      name: plugins
+      subPath: workspacehkhd578x1d23wpsr/plugins/
+    - mountPath: /workspace_logs
+      name: claim-che-workspacehhg7rs2v
+      subPath: workspacehkhd578x1d23wpsr/che-logs-maven/
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: che-workspace-token-wptcc
+      readOnly: true
+  nodeName: n25.c1.rdu2c.fabric8.io
+  nodeSelector:
+    node-role.kubernetes.io/compute: "true"
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext:
+    fsGroup: 1000420000
+    seLinuxOptions:
+      level: s0:c21,c0
+  serviceAccount: che-workspace
+  serviceAccountName: che-workspace
+  terminationGracePeriodSeconds: 0
+  tolerations:
+  - effect: NoSchedule
+    key: node.kubernetes.io/memory-pressure
+    operator: Exists
+  volumes:
+  - name: m2
+    persistentVolumeClaim:
+      claimName: claim-che-workspace-2eyj4tg6
+  - name: plugins
+    persistentVolumeClaim:
+      claimName: claim-che-workspace-r41r1u5j
+  - emptyDir: {}
+    name: remote-endpoint
+  - configMap:
+      defaultMode: 420
+      name: workspacehkhd578x1d23wpsr.broker-config-map7tynz6
+    name: broker-config-volumegibbg4
+  - name: claim-che-workspacehhg7rs2v
+    persistentVolumeClaim:
+      claimName: claim-che-workspacehhg7rs2v
+  - name: claim-che-workspacekz9qp3s6
+    persistentVolumeClaim:
+      claimName: claim-che-workspacekz9qp3s6
+  - name: workspacehkhd578x1d23wpsr-sshprivatekeys
+    secret:
+      defaultMode: 384
+      secretName: workspacehkhd578x1d23wpsr-sshprivatekeys
+  - configMap:
+      defaultMode: 420
+      name: workspacehkhd578x1d23wpsr-sshconfigmap
+    name: ssshkeyconfigvolume
+  - configMap:
+      defaultMode: 420
+      name: workspacehkhd578x1d23wpsr-gitconfig
+    name: gitconfigvolume
+  - name: che-workspace-token-wptcc
+    secret:
+      defaultMode: 420
+      secretName: che-workspace-token-wptcc
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: 2020-02-06T18:36:54Z
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: 2020-02-06T18:36:58Z
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: 2020-02-06T18:36:40Z
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: docker://965760e06c31b408b7d14f3bd02b4573fb369300f1305d49e0740289bcae3f22
+    image: quay.io/eclipse/che-machine-exec:nightly
+    imageID: docker-pullable://quay.io/eclipse/che-machine-exec@sha256:287b57f5bdbabd42122dd61c0a1e2b282e781d5bafee57c9dd79fef8c0e54f91
+    lastState: {}
+    name: che-machine-execk9j
+    ready: true
+    restartCount: 0
+    state:
+      running:
+        startedAt: 2020-02-06T18:36:57Z
+  - containerID: docker://17d92a7ce6c9534d5f3ed2b647d3482cb502b086870b3e0815388e8e3524f544
+    image: quay.io/eclipse/che-java11-maven:nightly
+    imageID: docker-pullable://quay.io/eclipse/che-java11-maven@sha256:d60a67928b714cea208fe89414c92791ef930bd94e1da2919377052cd12c3338
+    lastState: {}
+    name: maven
+    ready: true
+    restartCount: 0
+    state:
+      running:
+        startedAt: 2020-02-06T18:36:55Z
+  - containerID: docker://e8ab4c1f05afe973ca5742cf437eba40cc80eb84b97f162178a67cf57cae8b63
+    image: quay.io/eclipse/che-theia:next
+    imageID: docker-pullable://quay.io/eclipse/che-theia@sha256:278cb189b67a552bd0c6027eb1dc8a14e5d632ef99254dc44ea2a3a7de92e67c
+    lastState: {}
+    name: theia-iden6m
+    ready: true
+    restartCount: 0
+    state:
+      running:
+        startedAt: 2020-02-06T18:36:58Z
+  - containerID: docker://cd82c6072d705b2c02720e7a9ab18129b3c2fe9cf2e8256a2c4642e24f633c5b
+    image: quay.io/eclipse/che-sidecar-java:11-f76ca45
+    imageID: docker-pullable://quay.io/eclipse/che-sidecar-java@sha256:54a5f721588455403d8c2a81d1fbc8fef2c6a32aead44f2fb3e24a8a1fddb9a2
+    lastState: {}
+    name: vscode-javaoes
+    ready: true
+    restartCount: 0
+    state:
+      running:
+        startedAt: 2020-02-06T18:36:56Z
+  hostIP: 192.168.173.25
+  initContainerStatuses:
+  - containerID: docker://5fb03b6153acf968ea36be87a5869b07ebfab3a1a6fd07567b6045b2da327f43
+    image: quay.io/eclipse/che-theia-endpoint-runtime-binary:next
+    imageID: docker-pullable://quay.io/eclipse/che-theia-endpoint-runtime-binary@sha256:2a9992414975b893dfef1400ef3a4751cdc022a1063df324198a067b3ca63256
+    lastState: {}
+    name: remote-runtime-injectorgh9
+    ready: true
+    restartCount: 0
+    state:
+      terminated:
+        containerID: docker://5fb03b6153acf968ea36be87a5869b07ebfab3a1a6fd07567b6045b2da327f43
+        exitCode: 0
+        finishedAt: 2020-02-06T18:36:50Z
+        reason: Completed
+        startedAt: 2020-02-06T18:36:49Z
+  - containerID: docker://bad1dd320699bb430918e08210414c7fbeb9a5a7f779b1243c4a6d18c701f217
+    image: quay.io/eclipse/che-plugin-artifacts-broker:v3.1.0
+    imageID: docker-pullable://quay.io/eclipse/che-plugin-artifacts-broker@sha256:3498e4070fbda3a1b61cf518494ec1051112fc70daf64723dafbf0946a53af0e
+    lastState: {}
+    name: che-plugin-artifacts-broker-v3-1-0
+    ready: true
+    restartCount: 0
+    state:
+      terminated:
+        containerID: docker://bad1dd320699bb430918e08210414c7fbeb9a5a7f779b1243c4a6d18c701f217
+        exitCode: 0
+        finishedAt: 2020-02-06T18:36:54Z
+        reason: Completed
+        startedAt: 2020-02-06T18:36:51Z
+  phase: Running
+  podIP: 10.131.1.191
+  qosClass: Burstable
+  startTime: 2020-02-06T18:36:40Z

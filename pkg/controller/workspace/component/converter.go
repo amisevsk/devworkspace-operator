@@ -204,12 +204,13 @@ func setupComponents(names WorkspaceProperties, devfile workspaceApi.DevfileSpec
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	// for _, pluginComponentStatus := range pluginComponentStatuses {
-	// 	if pluginComponentStatus.PluginFQN != nil {
-	// 		pluginFQNs = append(pluginFQNs, *pluginComponentStatus.PluginFQN)
-	// 	}
-	// }
+
 	componentInstanceStatuses = append(componentInstanceStatuses, pluginComponentStatuses...)
+	brokerComponent, err := getArtifactsBrokerObjects(names, pluginComponents)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	componentInstanceStatuses = append(componentInstanceStatuses, brokerComponent)
 
 	err = mergeWorkspaceAdditions(deployment, componentInstanceStatuses, k8sObjects)
 	if err != nil {
@@ -217,12 +218,6 @@ func setupComponents(names WorkspaceProperties, devfile workspaceApi.DevfileSpec
 	}
 
 	precreateSubpathsInitContainer(names, &deployment.Spec.Template.Spec)
-	initContainersK8sObjects, err := setupPluginInitContainers(names, &deployment.Spec.Template.Spec, pluginComponents)
-	if err != nil {
-		return nil, nil, nil, err
-	}
-
-	k8sObjects = append(k8sObjects, initContainersK8sObjects...)
 
 	workspaceRouting := buildWorkspaceRouting(names, componentInstanceStatuses)
 
