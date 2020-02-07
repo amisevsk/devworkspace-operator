@@ -70,15 +70,14 @@ type ComponentSpec struct {
 
 	//fields for dockerimage type
 
-	// TODO What the
-	Image        *string    `json:"image,omitempty"`        // Specifies the docker image that should be used for component
-	MemoryLimit  *string    `json:"memoryLimit,omitempty"`  // Describes memory limit for the component. You can express memory as a plain integer or as a; fixed-point integer using one of these suffixes: E, P, T, G, M, K. You can also use the; power-of-two equivalents: Ei, Pi, Ti, Gi, Mi, Ki
-	MountSources *bool      `json:"mountSources,omitempty"` // Describes whether projects sources should be mount to the component. `CHE_PROJECTS_ROOT`; environment variable should contains a path where projects sources are mount
+	Image        string     `json:"image,omitempty"`        // Specifies the docker image that should be used for component
+	MemoryLimit  string     `json:"memoryLimit,omitempty"`  // Describes memory limit for the component. You can express memory as a plain integer or as a; fixed-point integer using one of these suffixes: E, P, T, G, M, K. You can also use the; power-of-two equivalents: Ei, Pi, Ti, Gi, Mi, Ki
+	MountSources bool       `json:"mountSources,omitempty"` // Describes whether projects sources should be mount to the component. `CHE_PROJECTS_ROOT`; environment variable should contains a path where projects sources are mount
 	Endpoints    []Endpoint `json:"endpoints,omitempty"`    // Describes dockerimage component endpoints
 	Env          []Env      `json:"env,omitempty"`          // The environment variables list that should be set to docker container
 	Volumes      []Volume   `json:"volumes,omitempty"`      // Describes volumes which should be mount to component
-	Command      *[]string  `json:"command,omitempty"`      // The command to run in the dockerimage component instead of the default one provided in the image. Defaults to null, meaning use whatever is defined in the image.
-	Args         *[]string  `json:"args,omitempty"`         // The arguments to supply to the command running the dockerimage component. The arguments are supplied either to the default command provided in the image or to the overridden command. Defaults to null, meaning use whatever is defined in the image.
+	Command      []string   `json:"command,omitempty"`      // The command to run in the dockerimage component instead of the default one provided in the image. Defaults to null, meaning use whatever is defined in the image.
+	Args         []string   `json:"args,omitempty"`         // The arguments to supply to the command running the dockerimage component. The arguments are supplied either to the default command provided in the image or to the overridden command. Defaults to null, meaning use whatever is defined in the image.
 
 	//common fields for kubernetes&openshift types
 

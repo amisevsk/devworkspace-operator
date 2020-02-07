@@ -43,7 +43,7 @@ func setupDockerimageComponent(names WorkspaceProperties, commands []workspaceAp
 	var containerName string
 	if component.Alias == "" {
 		re := regexp.MustCompile(`[^-a-zA-Z0-9_]`)
-		containerName = re.ReplaceAllString(*component.Image, "-")
+		containerName = re.ReplaceAllString(component.Image, "-")
 	} else {
 		containerName = component.Alias
 	}
@@ -52,10 +52,10 @@ func setupDockerimageComponent(names WorkspaceProperties, commands []workspaceAp
 
 	var limitOrDefault string
 
-	if *component.MemoryLimit == "" {
+	if component.MemoryLimit == "" {
 		limitOrDefault = "128M"
 	} else {
-		limitOrDefault = *component.MemoryLimit
+		limitOrDefault = component.MemoryLimit
 	}
 
 	limit, err := resource.ParseQuantity(limitOrDefault)
@@ -78,7 +78,7 @@ func setupDockerimageComponent(names WorkspaceProperties, commands []workspaceAp
 	})
 	container := corev1.Container{
 		Name:            containerName,
-		Image:           *component.Image,
+		Image:           component.Image,
 		ImagePullPolicy: corev1.PullPolicy(ControllerCfg.GetSidecarPullPolicy()),
 		Ports:           k8sModelUtils.BuildContainerPorts(exposedPorts, corev1.ProtocolTCP),
 		Resources: corev1.ResourceRequirements{
@@ -93,10 +93,10 @@ func setupDockerimageComponent(names WorkspaceProperties, commands []workspaceAp
 		Env:          append(envVars, commonEnvironmentVariables(names)...),
 	}
 	if component.Command != nil {
-		container.Command = *component.Command
+		container.Command = component.Command
 	}
 	if component.Args != nil {
-		container.Args = *component.Args
+		container.Args = component.Args
 	}
 
 	podTemplate.Spec.Containers = append(podTemplate.Spec.Containers, container)

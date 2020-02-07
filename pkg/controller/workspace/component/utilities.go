@@ -43,7 +43,7 @@ func endpointPortsToInts(endpoints []workspaceApi.Endpoint) []int {
 	return ports
 }
 
-func createVolumeMounts(workspaceProps WorkspaceProperties, mountSources *bool, devfileVolumes []workspaceApi.Volume, pluginVolumes []model.Volume) []corev1.VolumeMount {
+func createVolumeMounts(workspaceProps WorkspaceProperties, mountSources bool, devfileVolumes []workspaceApi.Volume, pluginVolumes []model.Volume) []corev1.VolumeMount {
 	volumeName := config.ControllerCfg.GetWorkspacePVCName()
 
 	var volumeMounts []corev1.VolumeMount
@@ -62,7 +62,7 @@ func createVolumeMounts(workspaceProps WorkspaceProperties, mountSources *bool, 
 		})
 	}
 
-	if mountSources != nil && *mountSources {
+	if mountSources {
 		volumeMounts = append(volumeMounts, corev1.VolumeMount{
 			MountPath: DefaultProjectsSourcesRoot,
 			Name:      volumeName,

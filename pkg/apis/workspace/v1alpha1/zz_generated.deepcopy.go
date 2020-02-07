@@ -92,21 +92,6 @@ func (in *ComponentSpec) DeepCopyInto(out *ComponentSpec) {
 		*out = new(string)
 		**out = **in
 	}
-	if in.Image != nil {
-		in, out := &in.Image, &out.Image
-		*out = new(string)
-		**out = **in
-	}
-	if in.MemoryLimit != nil {
-		in, out := &in.MemoryLimit, &out.MemoryLimit
-		*out = new(string)
-		**out = **in
-	}
-	if in.MountSources != nil {
-		in, out := &in.MountSources, &out.MountSources
-		*out = new(bool)
-		**out = **in
-	}
 	if in.Endpoints != nil {
 		in, out := &in.Endpoints, &out.Endpoints
 		*out = make([]Endpoint, len(*in))
@@ -126,21 +111,13 @@ func (in *ComponentSpec) DeepCopyInto(out *ComponentSpec) {
 	}
 	if in.Command != nil {
 		in, out := &in.Command, &out.Command
-		*out = new([]string)
-		if **in != nil {
-			in, out := *in, *out
-			*out = make([]string, len(*in))
-			copy(*out, *in)
-		}
+		*out = make([]string, len(*in))
+		copy(*out, *in)
 	}
 	if in.Args != nil {
 		in, out := &in.Args, &out.Args
-		*out = new([]string)
-		if **in != nil {
-			in, out := *in, *out
-			*out = make([]string, len(*in))
-			copy(*out, *in)
-		}
+		*out = make([]string, len(*in))
+		copy(*out, *in)
 	}
 	if in.ReferenceContent != nil {
 		in, out := &in.ReferenceContent, &out.ReferenceContent
