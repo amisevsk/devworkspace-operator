@@ -2,13 +2,12 @@ module github.com/che-incubator/che-workspace-crd-operator
 
 go 1.12
 
-// Che Plugin Broker v3.0.0
-require github.com/eclipse/che-plugin-broker v3.0.0+incompatible
-
-replace github.com/eclipse/che-plugin-broker => /home/amisevsk/go/src/github.com/eclipse/che-plugin-broker
+// Che Plugin Broker branch devworkspace-controller
+require github.com/eclipse/che-plugin-broker v0.24.1-0.20200207220250-19e83e5800b5
 
 // Operator Framework 0.12.x
 require (
+	github.com/eclipse/che-go-jsonrpc v0.0.0-20181205102516-87cdb8da2597 // indirect
 	github.com/go-logr/logr v0.1.0
 	github.com/go-openapi/spec v0.19.0
 	github.com/google/go-cmp v0.3.0
