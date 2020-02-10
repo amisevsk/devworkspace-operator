@@ -15,9 +15,9 @@ spec:
         name: maven build
     components:
       - alias: theia-ide
-        id: eclipse/che-theia/7.1.0
+        id: eclipse/che-theia/latest
         type: cheEditor
-      - id: eclipse/che-machine-exec-plugin/7.1.0
+      - id: eclipse/che-machine-exec-plugin/latest
         type: chePlugin
       - id: redhat/java/latest
         memoryLimit: 1280MiB
