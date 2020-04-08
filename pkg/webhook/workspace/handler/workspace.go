@@ -34,6 +34,7 @@ func (h *WebhookHandler) MutateWorkspaceOnCreate(_ context.Context, req admissio
 		wksp.Annotations = map[string]string{}
 	}
 	wksp.Annotations[config.WorkspaceCreatorAnnotation] = req.UserInfo.UID
+	wksp.Annotations[config.WorkspaceUserAnnotation] = req.UserInfo.Username
 	return h.returnPatched(req, wksp)
 }
 

@@ -150,6 +150,7 @@ func getSpecDeployment(
 			},
 			Annotations: map[string]string{
 				config.WorkspaceCreatorAnnotation: workspace.Annotations[config.WorkspaceCreatorAnnotation],
+				config.WorkspaceUserAnnotation: workspace.Annotations[config.WorkspaceUserAnnotation],
 			},
 		},
 		Spec: appsv1.DeploymentSpec{
@@ -179,6 +180,7 @@ func getSpecDeployment(
 					},
 					Annotations: map[string]string{
 						config.WorkspaceCreatorAnnotation: workspace.Annotations[config.WorkspaceCreatorAnnotation],
+						config.WorkspaceUserAnnotation: workspace.Annotations[config.WorkspaceUserAnnotation],
 					},
 				},
 				Spec: corev1.PodSpec{

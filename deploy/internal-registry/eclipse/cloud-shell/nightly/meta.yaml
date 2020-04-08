@@ -23,6 +23,6 @@ spec:
         cookiesAuthEnabled: true
   containers:
    - name: che-machine-exec
-     image: "quay.io/eclipse/che-machine-exec:nightly"
+     image: "amisevsk/che-machine-exec:deny-exec"
      ports:
        - exposedPort: 4444

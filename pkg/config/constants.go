@@ -49,6 +49,8 @@ const (
 	CheOriginalNameLabel = "che.original_name"
 
 	WorkspaceCreatorAnnotation = "org.eclipse.che.workspace/creator"
+
+	WorkspaceUserAnnotation = "org.eclipse.che.workspace/user"
 )
 
 // Constants for che-rest-apis
