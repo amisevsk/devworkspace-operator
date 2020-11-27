@@ -29,6 +29,9 @@ type RoutingObjects struct {
 }
 
 type RoutingSolver interface {
+	// GetSpecObjects constructs cluster routing objects which should be applied on the cluster
 	GetSpecObjects(spec controllerv1alpha1.WorkspaceRoutingSpec, workspaceMeta WorkspaceMetadata) RoutingObjects
+
+	// GetExposedEndpoints resolves exposed endpoints basic on the cluster routing objects
 	GetExposedEndpoints(endpoints map[string]controllerv1alpha1.EndpointList, routingObj RoutingObjects) (exposedEndpoints map[string]controllerv1alpha1.ExposedEndpointList, ready bool, err error)
 }
