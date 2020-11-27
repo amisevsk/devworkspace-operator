@@ -36,11 +36,15 @@ func ServiceAccountName(workspaceId string) string {
 }
 
 func EndpointHostname(workspaceId, endpointName string, endpointPort int, routingSuffix string) string {
-	hostname := fmt.Sprintf("%s-%s-%d", workspaceId, endpointName, endpointPort)
+	hostname := workspaceId
 	if len(hostname) > 63 {
 		hostname = strings.TrimSuffix(hostname[:63], "-")
 	}
 	return fmt.Sprintf("%s.%s", hostname, routingSuffix)
+}
+func EndpointPath(endpointName string) string {
+	//TODO probably component name should be pulled here as well since endpoint name is unique per component
+	return "/" + endpointName + "/"
 }
 
 func RouteName(workspaceId, endpointName string) string {

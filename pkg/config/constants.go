@@ -41,6 +41,7 @@ const (
 	WorkspaceIDLabel = "controller.devfile.io/workspace_id"
 
 	// WorkspaceEndpointNameAnnotation is the annotation key for storing an endpoint's name from the devfile representation
+	// TODO Is it unique?
 	WorkspaceEndpointNameAnnotation = "controller.devfile.io/endpoint_name"
 
 	// WorkspaceNameLabel is label key to store workspace name
