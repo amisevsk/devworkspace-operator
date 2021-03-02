@@ -30,7 +30,7 @@ spec:
         "che-theia.eclipse.org/vscode-extensions":
           - https://github.com/microsoft/vscode-pull-request-github/releases/download/v0.8.0/vscode-pull-request-github-0.8.0.vsix
       container:
-        image: "quay.io/eclipse/che-theia:next"
+        image: "quay.io/eclipse/che-theia:7.26.0"
         env:
           - name: THEIA_PLUGINS
             value: local-dir:///plugins

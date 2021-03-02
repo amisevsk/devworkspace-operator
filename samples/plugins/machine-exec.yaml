@@ -10,7 +10,7 @@ spec:
         "app.kubernetes.io/part-of": che.eclipse.org
         "app.kubernetes.io/component": terminal
       container:
-        image: "quay.io/eclipse/che-machine-exec:7.20.0"
+        image: "quay.io/eclipse/che-machine-exec:7.26.0"
         command: ['/go/bin/che-machine-exec']
         args:
           - '--url'
