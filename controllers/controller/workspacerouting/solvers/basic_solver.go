@@ -41,19 +41,19 @@ type BasicSolver struct{}
 
 var _ RoutingSolver = (*BasicSolver)(nil)
 
-func (s *BasicSolver) FinalizerRequired(routing *controllerv1alpha1.WorkspaceRouting) bool {
+func (s *BasicSolver) FinalizerRequired(*controllerv1alpha1.WorkspaceRouting) bool {
 	return false
 }
 
-func (s *BasicSolver) Finalize(routing *controllerv1alpha1.WorkspaceRouting) error {
+func (s *BasicSolver) Finalize(*controllerv1alpha1.WorkspaceRouting) error {
 	return nil
 }
 
-func (s *BasicSolver) GetSpecObjects(routing *controllerv1alpha1.WorkspaceRouting, workspaceMeta WorkspaceMetadata) (RoutingObjects, error) {
+func (s *BasicSolver) GetSpecObjects(routing *controllerv1alpha1.WorkspaceRouting, workspaceMeta WorkspaceMetadata, isOpenShift bool) (RoutingObjects, error) {
 	spec := routing.Spec
 	services := getServicesForEndpoints(spec.Endpoints, workspaceMeta)
 	services = append(services, GetDiscoverableServicesForEndpoints(spec.Endpoints, workspaceMeta)...)
-	ingresses, routes := getRoutingForSpec(spec.Endpoints, workspaceMeta)
+	ingresses, routes := getRoutingForSpec(spec.Endpoints, workspaceMeta, isOpenShift)
 
 	return RoutingObjects{
 		Services:  services,

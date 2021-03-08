@@ -15,13 +15,13 @@ package solvers
 import (
 	"fmt"
 
-	controllerv1alpha1 "github.com/devfile/devworkspace-operator/apis/controller/v1alpha1"
-	"github.com/devfile/devworkspace-operator/pkg/config"
 	routeV1 "github.com/openshift/api/route/v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	controllerv1alpha1 "github.com/devfile/devworkspace-operator/apis/controller/v1alpha1"
 )
 
 type RoutingObjects struct {
@@ -48,7 +48,7 @@ type RoutingSolver interface {
 	// The implementors can also create any additional objects not captured by the RoutingObjects struct. If that's
 	// the case they are required to set the restricted access annotation on any objects created according to the
 	// restricted access specified by the routing.
-	GetSpecObjects(routing *controllerv1alpha1.WorkspaceRouting, workspaceMeta WorkspaceMetadata) (RoutingObjects, error)
+	GetSpecObjects(routing *controllerv1alpha1.WorkspaceRouting, workspaceMeta WorkspaceMetadata, isOpenShift bool) (RoutingObjects, error)
 
 	// GetExposedEndpoints retreives the URL for each endpoint in a devfile spec from a set of RoutingObjects.
 	// Returns is a map from component ids (as defined in the devfile) to the list of endpoints for that component
@@ -73,7 +73,7 @@ type RoutingSolverGetter interface {
 	// the routingClass is not recognized, and any other error if the routingClass is invalid (e.g. an OpenShift-only
 	// routingClass on a vanilla Kubernetes platform). Note that an empty routingClass is handled by the DevWorkspace controller itself,
 	// and should not be handled by external controllers.
-	GetSolver(client client.Client, routingClass controllerv1alpha1.WorkspaceRoutingClass) (solver RoutingSolver, err error)
+	GetSolver(client client.Client, routingClass controllerv1alpha1.WorkspaceRoutingClass, isOpenShift bool) (solver RoutingSolver, err error)
 }
 
 type SolverGetter struct{}
@@ -97,19 +97,19 @@ func (_ *SolverGetter) HasSolver(routingClass controllerv1alpha1.WorkspaceRoutin
 	}
 }
 
-func (_ *SolverGetter) GetSolver(client client.Client, routingClass controllerv1alpha1.WorkspaceRoutingClass) (RoutingSolver, error) {
+func (_ *SolverGetter) GetSolver(client client.Client, routingClass controllerv1alpha1.WorkspaceRoutingClass, isOpenShift bool) (RoutingSolver, error) {
 	switch routingClass {
 	case controllerv1alpha1.WorkspaceRoutingBasic:
 		return &BasicSolver{}, nil
 	case controllerv1alpha1.WorkspaceRoutingOpenShiftOauth:
-		if !config.ControllerCfg.IsOpenShift() {
+		if !isOpenShift {
 			return nil, fmt.Errorf("routing class %s only supported on OpenShift", routingClass)
 		}
 		return &OpenShiftOAuthSolver{Client: client}, nil
 	case controllerv1alpha1.WorkspaceRoutingCluster:
 		return &ClusterSolver{}, nil
 	case controllerv1alpha1.WorkspaceRoutingClusterTLS, controllerv1alpha1.WorkspaceRoutingWebTerminal:
-		if !config.ControllerCfg.IsOpenShift() {
+		if !isOpenShift {
 			return nil, fmt.Errorf("routing class %s only supported on OpenShift", routingClass)
 		}
 		return &ClusterSolver{TLS: true}, nil
@@ -118,6 +118,6 @@ func (_ *SolverGetter) GetSolver(client client.Client, routingClass controllerv1
 	}
 }
 
-func (*SolverGetter) SetupControllerManager(mgr *builder.Builder) error {
+func (*SolverGetter) SetupControllerManager(*builder.Builder) error {
 	return nil
 }

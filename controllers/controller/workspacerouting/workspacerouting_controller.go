@@ -18,8 +18,8 @@ import (
 	"time"
 
 	"github.com/devfile/devworkspace-operator/controllers/controller/workspacerouting/solvers"
+	"github.com/devfile/devworkspace-operator/internal/cluster"
 	maputils "github.com/devfile/devworkspace-operator/internal/map"
-	"github.com/devfile/devworkspace-operator/pkg/config"
 	"github.com/devfile/devworkspace-operator/pkg/constants"
 
 	"github.com/google/go-cmp/cmp"
@@ -47,8 +47,9 @@ const workspaceRoutingFinalizer = "workspacerouting.controller.devfile.io"
 // WorkspaceRoutingReconciler reconciles a WorkspaceRouting object
 type WorkspaceRoutingReconciler struct {
 	client.Client
-	Log    logr.Logger
-	Scheme *runtime.Scheme
+	Log         logr.Logger
+	Scheme      *runtime.Scheme
+	IsOpenShift bool
 	// SolverGetter will be used to get solvers for a particular workspaceRouting
 	SolverGetter solvers.RoutingSolverGetter
 }
@@ -87,7 +88,7 @@ func (r *WorkspaceRoutingReconciler) Reconcile(req ctrl.Request) (ctrl.Result, e
 		return reconcile.Result{}, r.markRoutingFailed(instance)
 	}
 
-	solver, err := r.SolverGetter.GetSolver(r.Client, instance.Spec.RoutingClass)
+	solver, err := r.SolverGetter.GetSolver(r.Client, instance.Spec.RoutingClass, r.IsOpenShift)
 	if err != nil {
 		if errors.Is(err, solvers.RoutingNotSupported) {
 			return reconcile.Result{}, nil
@@ -120,7 +121,7 @@ func (r *WorkspaceRoutingReconciler) Reconcile(req ctrl.Request) (ctrl.Result, e
 	}
 
 	restrictedAccess, setRestrictedAccess := instance.Annotations[constants.WorkspaceRestrictedAccessAnnotation]
-	routingObjects, err := solver.GetSpecObjects(instance, workspaceMeta)
+	routingObjects, err := solver.GetSpecObjects(instance, workspaceMeta, r.IsOpenShift)
 	if err != nil {
 		var notReady *solvers.RoutingNotReady
 		if errors.As(err, &notReady) {
@@ -185,17 +186,20 @@ func (r *WorkspaceRoutingReconciler) Reconcile(req ctrl.Request) (ctrl.Result, e
 		return reconcile.Result{Requeue: true}, err
 	}
 
-	routesInSync, clusterRoutes, err := r.syncRoutes(instance, routes)
-	if err != nil || !routesInSync {
-		reqLogger.Info("Routes not in sync")
-		return reconcile.Result{Requeue: true}, err
-	}
-
 	clusterRoutingObj := solvers.RoutingObjects{
 		Services:  clusterServices,
 		Ingresses: clusterIngresses,
-		Routes:    clusterRoutes,
 	}
+
+	if r.IsOpenShift {
+		routesInSync, clusterRoutes, err := r.syncRoutes(instance, routes)
+		if err != nil || !routesInSync {
+			reqLogger.Info("Routes not in sync")
+			return reconcile.Result{Requeue: true}, err
+		}
+		clusterRoutingObj.Routes = clusterRoutes
+	}
+
 	exposedEndpoints, endpointsAreReady, err := solver.GetExposedEndpoints(instance.Spec.Endpoints, clusterRoutingObj)
 	if err != nil {
 		reqLogger.Error(err, "Could not get exposed endpoints for workspace")
@@ -291,8 +295,13 @@ func (r *WorkspaceRoutingReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&controllerv1alpha1.WorkspaceRouting{}).
 		Owns(&corev1.Service{}).
 		Owns(&v1beta1.Ingress{})
-	if config.ControllerCfg.IsOpenShift() {
+	if isOS, err := cluster.IsOpenShift(); err != nil {
+		return err
+	} else if isOS {
 		bld.Owns(&routeV1.Route{})
+		r.IsOpenShift = true
+	} else {
+		r.IsOpenShift = false
 	}
 	if r.SolverGetter == nil {
 		return NoSolversEnabled

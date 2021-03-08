@@ -17,7 +17,6 @@ import (
 
 	controllerv1alpha1 "github.com/devfile/devworkspace-operator/apis/controller/v1alpha1"
 	"github.com/devfile/devworkspace-operator/pkg/common"
-	"github.com/devfile/devworkspace-operator/pkg/config"
 	"github.com/devfile/devworkspace-operator/pkg/constants"
 
 	routeV1 "github.com/openshift/api/route/v1"
@@ -154,7 +153,7 @@ func getServicesForEndpoints(endpoints map[string]controllerv1alpha1.EndpointLis
 	}
 }
 
-func getRoutingForSpec(endpoints map[string]controllerv1alpha1.EndpointList, meta WorkspaceMetadata) ([]v1beta1.Ingress, []routeV1.Route) {
+func getRoutingForSpec(endpoints map[string]controllerv1alpha1.EndpointList, meta WorkspaceMetadata, isOpenShift bool) ([]v1beta1.Ingress, []routeV1.Route) {
 	var ingresses []v1beta1.Ingress
 	var routes []routeV1.Route
 	for _, machineEndpoints := range endpoints {
@@ -162,7 +161,7 @@ func getRoutingForSpec(endpoints map[string]controllerv1alpha1.EndpointList, met
 			if endpoint.Exposure != devworkspace.PublicEndpointExposure {
 				continue
 			}
-			if config.ControllerCfg.IsOpenShift() {
+			if isOpenShift {
 				routes = append(routes, getRouteForEndpoint(endpoint, meta))
 			} else {
 				ingresses = append(ingresses, getIngressForEndpoint(endpoint, meta))
