@@ -27,11 +27,14 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/resource"
 
-	"github.com/devfile/devworkspace-operator/pkg/library/constants"
-	containerlib "github.com/devfile/devworkspace-operator/pkg/library/container"
 	corev1 "k8s.io/api/core/v1"
 
+	constants2 "github.com/devfile/devworkspace-operator/pkg/constants"
+	"github.com/devfile/devworkspace-operator/pkg/library/constants"
+	containerlib "github.com/devfile/devworkspace-operator/pkg/library/container"
+
 	devworkspace "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
+
 	"github.com/devfile/devworkspace-operator/apis/controller/v1alpha1"
 	"github.com/devfile/devworkspace-operator/pkg/config"
 )
@@ -58,7 +61,7 @@ func RewriteContainerVolumeMounts(workspaceId string, podAdditions *v1alpha1.Pod
 	if _, exists := devfileVolumes[constants.ProjectsVolumeName]; !exists {
 		// Add implicit projects volume to support mountSources
 		projectsVolume := devworkspace.VolumeComponent{}
-		projectsVolume.Size = config.PVCStorageSize
+		projectsVolume.Size = constants2.PVCStorageSize
 		devfileVolumes[constants.ProjectsVolumeName] = projectsVolume
 	}
 
