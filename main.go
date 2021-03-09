@@ -75,10 +75,10 @@ func main() {
 	ctrl.SetLogger(zap.New(zap.UseDevMode(config.GetDevModeEnabled())))
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
-		Scheme:             scheme,
-		MetricsBindAddress: metricsAddr,
-		Port:               9443,
-		HealthProbeBindAddress: "6789",
+		Scheme:                 scheme,
+		MetricsBindAddress:     metricsAddr,
+		Port:                   9443,
+		HealthProbeBindAddress: ":6789",
 		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       "8d217f93.devfile.io",
 	})
@@ -125,6 +125,10 @@ func main() {
 
 	// Setup health checks
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
+		setupLog.Error(err, "Unable to set up health check")
+		os.Exit(1)
+	}
+	if err := mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
 		setupLog.Error(err, "Unable to set up health check")
 		os.Exit(1)
 	}
