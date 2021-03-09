@@ -153,22 +153,30 @@ func getServicesForEndpoints(endpoints map[string]controllerv1alpha1.EndpointLis
 	}
 }
 
-func getRoutingForSpec(endpoints map[string]controllerv1alpha1.EndpointList, meta WorkspaceMetadata, isOpenShift bool) ([]v1beta1.Ingress, []routeV1.Route) {
-	var ingresses []v1beta1.Ingress
+func getRoutesForSpec(endpoints map[string]controllerv1alpha1.EndpointList, meta WorkspaceMetadata) []routeV1.Route {
 	var routes []routeV1.Route
 	for _, machineEndpoints := range endpoints {
 		for _, endpoint := range machineEndpoints {
 			if endpoint.Exposure != devworkspace.PublicEndpointExposure {
 				continue
 			}
-			if isOpenShift {
-				routes = append(routes, getRouteForEndpoint(endpoint, meta))
-			} else {
-				ingresses = append(ingresses, getIngressForEndpoint(endpoint, meta))
-			}
+			routes = append(routes, getRouteForEndpoint(endpoint, meta))
 		}
 	}
-	return ingresses, routes
+	return routes
+}
+
+func getIngressesForSpec(endpoints map[string]controllerv1alpha1.EndpointList, meta WorkspaceMetadata) []v1beta1.Ingress {
+	var ingresses []v1beta1.Ingress
+	for _, machineEndpoints := range endpoints {
+		for _, endpoint := range machineEndpoints {
+			if endpoint.Exposure != devworkspace.PublicEndpointExposure {
+				continue
+			}
+			ingresses = append(ingresses, getIngressForEndpoint(endpoint, meta))
+		}
+	}
+	return ingresses
 }
 
 func getRouteForEndpoint(endpoint devworkspace.Endpoint, meta WorkspaceMetadata) routeV1.Route {

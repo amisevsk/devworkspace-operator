@@ -48,7 +48,7 @@ type RoutingSolver interface {
 	// The implementors can also create any additional objects not captured by the RoutingObjects struct. If that's
 	// the case they are required to set the restricted access annotation on any objects created according to the
 	// restricted access specified by the routing.
-	GetSpecObjects(routing *controllerv1alpha1.WorkspaceRouting, workspaceMeta WorkspaceMetadata, isOpenShift bool) (RoutingObjects, error)
+	GetSpecObjects(routing *controllerv1alpha1.WorkspaceRouting, workspaceMeta WorkspaceMetadata) (RoutingObjects, error)
 
 	// GetExposedEndpoints retreives the URL for each endpoint in a devfile spec from a set of RoutingObjects.
 	// Returns is a map from component ids (as defined in the devfile) to the list of endpoints for that component
@@ -100,7 +100,7 @@ func (_ *SolverGetter) HasSolver(routingClass controllerv1alpha1.WorkspaceRoutin
 func (_ *SolverGetter) GetSolver(client client.Client, routingClass controllerv1alpha1.WorkspaceRoutingClass, isOpenShift bool) (RoutingSolver, error) {
 	switch routingClass {
 	case controllerv1alpha1.WorkspaceRoutingBasic:
-		return &BasicSolver{}, nil
+		return &BasicSolver{isOpenShift: isOpenShift}, nil
 	case controllerv1alpha1.WorkspaceRoutingOpenShiftOauth:
 		if !isOpenShift {
 			return nil, fmt.Errorf("routing class %s only supported on OpenShift", routingClass)

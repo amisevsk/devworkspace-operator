@@ -57,10 +57,10 @@ func (s *OpenShiftOAuthSolver) Finalize(routing *controllerv1alpha1.WorkspaceRou
 	return nil
 }
 
-func (s *OpenShiftOAuthSolver) GetSpecObjects(routing *controllerv1alpha1.WorkspaceRouting, workspaceMeta WorkspaceMetadata, isOpenShift bool) (RoutingObjects, error) {
+func (s *OpenShiftOAuthSolver) GetSpecObjects(routing *controllerv1alpha1.WorkspaceRouting, workspaceMeta WorkspaceMetadata) (RoutingObjects, error) {
 	spec := routing.Spec
 	proxy, noProxy := getProxiedEndpoints(spec)
-	defaultIngresses, defaultRoutes := getRoutingForSpec(noProxy, workspaceMeta, isOpenShift)
+	defaultRoutes := getRoutesForSpec(noProxy, workspaceMeta)
 
 	portMappings := getProxyEndpointMappings(proxy)
 	var proxyPorts = map[string]controllerv1alpha1.EndpointList{}
@@ -114,7 +114,6 @@ func (s *OpenShiftOAuthSolver) GetSpecObjects(routing *controllerv1alpha1.Worksp
 
 	return RoutingObjects{
 		Services:     services,
-		Ingresses:    defaultIngresses,
 		Routes:       append(routes, defaultRoutes...),
 		PodAdditions: podAdditions,
 	}, nil

@@ -42,7 +42,7 @@ func (s *ClusterSolver) Finalize(*controllerv1alpha1.WorkspaceRouting) error {
 	return nil
 }
 
-func (s *ClusterSolver) GetSpecObjects(routing *controllerv1alpha1.WorkspaceRouting, workspaceMeta WorkspaceMetadata, _ bool) (RoutingObjects, error) {
+func (s *ClusterSolver) GetSpecObjects(routing *controllerv1alpha1.WorkspaceRouting, workspaceMeta WorkspaceMetadata) (RoutingObjects, error) {
 	spec := routing.Spec
 	services := getServicesForEndpoints(spec.Endpoints, workspaceMeta)
 	podAdditions := &controllerv1alpha1.PodAdditions{}

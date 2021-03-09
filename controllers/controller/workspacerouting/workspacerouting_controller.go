@@ -121,7 +121,7 @@ func (r *WorkspaceRoutingReconciler) Reconcile(req ctrl.Request) (ctrl.Result, e
 	}
 
 	restrictedAccess, setRestrictedAccess := instance.Annotations[constants.WorkspaceRestrictedAccessAnnotation]
-	routingObjects, err := solver.GetSpecObjects(instance, workspaceMeta, r.IsOpenShift)
+	routingObjects, err := solver.GetSpecObjects(instance, workspaceMeta)
 	if err != nil {
 		var notReady *solvers.RoutingNotReady
 		if errors.As(err, &notReady) {
@@ -180,15 +180,8 @@ func (r *WorkspaceRoutingReconciler) Reconcile(req ctrl.Request) (ctrl.Result, e
 		return reconcile.Result{Requeue: true}, err
 	}
 
-	ingressesInSync, clusterIngresses, err := r.syncIngresses(instance, ingresses)
-	if err != nil || !ingressesInSync {
-		reqLogger.Info("Ingresses not in sync")
-		return reconcile.Result{Requeue: true}, err
-	}
-
 	clusterRoutingObj := solvers.RoutingObjects{
-		Services:  clusterServices,
-		Ingresses: clusterIngresses,
+		Services: clusterServices,
 	}
 
 	if r.IsOpenShift {
@@ -198,6 +191,13 @@ func (r *WorkspaceRoutingReconciler) Reconcile(req ctrl.Request) (ctrl.Result, e
 			return reconcile.Result{Requeue: true}, err
 		}
 		clusterRoutingObj.Routes = clusterRoutes
+	} else {
+		ingressesInSync, clusterIngresses, err := r.syncIngresses(instance, ingresses)
+		if err != nil || !ingressesInSync {
+			reqLogger.Info("Ingresses not in sync")
+			return reconcile.Result{Requeue: true}, err
+		}
+		clusterRoutingObj.Ingresses = clusterIngresses
 	}
 
 	exposedEndpoints, endpointsAreReady, err := solver.GetExposedEndpoints(instance.Spec.Endpoints, clusterRoutingObj)
