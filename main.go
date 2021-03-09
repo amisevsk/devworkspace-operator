@@ -37,6 +37,7 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	ctrl "sigs.k8s.io/controller-runtime"
 	ctrlconfig "sigs.k8s.io/controller-runtime/pkg/client/config"
+	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	// +kubebuilder:scaffold:imports
 )
@@ -77,8 +78,9 @@ func main() {
 		Scheme:             scheme,
 		MetricsBindAddress: metricsAddr,
 		Port:               9443,
-		LeaderElection:     enableLeaderElection,
-		LeaderElectionID:   "8d217f93.devfile.io",
+		HealthProbeBindAddress: "6789",
+		LeaderElection:         enableLeaderElection,
+		LeaderElectionID:       "8d217f93.devfile.io",
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
@@ -118,6 +120,12 @@ func main() {
 	setupLog.Info("setting up webhooks")
 	if err := webhook.SetupWebhooks(context.Background(), cfg); err != nil {
 		setupLog.Error(err, "failed to setup webhooks")
+		os.Exit(1)
+	}
+
+	// Setup health checks
+	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
+		setupLog.Error(err, "Unable to set up health check")
 		os.Exit(1)
 	}
 
