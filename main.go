@@ -19,12 +19,13 @@ import (
 
 	"github.com/devfile/devworkspace-operator/controllers/controller/workspacerouting"
 	"github.com/devfile/devworkspace-operator/controllers/controller/workspacerouting/solvers"
-	"github.com/devfile/devworkspace-operator/internal/cluster"
 	"github.com/devfile/devworkspace-operator/pkg/config"
+	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
 	"github.com/devfile/devworkspace-operator/pkg/webhook"
 
 	workspacev1alpha1 "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha1"
 	workspacev1alpha2 "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
+
 	controllerv1alpha1 "github.com/devfile/devworkspace-operator/apis/controller/v1alpha1"
 	workspacecontroller "github.com/devfile/devworkspace-operator/controllers/workspace"
 
@@ -53,7 +54,7 @@ func init() {
 	utilruntime.Must(workspacev1alpha1.AddToScheme(scheme))
 	utilruntime.Must(workspacev1alpha2.AddToScheme(scheme))
 
-	if isOS, err := cluster.IsOpenShift(); isOS && err == nil {
+	if infrastructure.IsOpenShift() {
 		utilruntime.Must(routev1.Install(scheme))
 		utilruntime.Must(templatev1.Install(scheme))
 		utilruntime.Must(oauthv1.Install(scheme))
@@ -129,23 +130,16 @@ func main() {
 }
 
 func setupControllerConfig(mgr ctrl.Manager) error {
-	operatorNamespace, err := cluster.GetOperatorNamespace()
+	operatorNamespace, err := infrastructure.GetOperatorNamespace()
 	if err == nil {
 		config.ConfigMapReference.Namespace = operatorNamespace
 	} else {
-		config.ConfigMapReference.Namespace = os.Getenv(cluster.WatchNamespaceEnvVar)
+		config.ConfigMapReference.Namespace = os.Getenv(infrastructure.WatchNamespaceEnvVar)
 	}
 	err = config.WatchControllerConfig(mgr)
 	if err != nil {
 		return err
 	}
-
-	// Check if we're running on OpenShift
-	isOS, err := cluster.IsOpenShift()
-	if err != nil {
-		return err
-	}
-	config.ControllerCfg.SetIsOpenShift(isOS)
 
 	err = config.ControllerCfg.Validate()
 	if err != nil {

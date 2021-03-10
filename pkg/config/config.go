@@ -19,8 +19,8 @@ import (
 	"strings"
 
 	"github.com/devfile/devworkspace-operator/apis/controller/v1alpha1"
-	"github.com/devfile/devworkspace-operator/internal/cluster"
 	"github.com/devfile/devworkspace-operator/pkg/constants"
+	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
 
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
@@ -77,14 +77,6 @@ func (wc *ControllerConfig) GetRoutingSuffix() string {
 
 func (wc *ControllerConfig) GetPVCStorageClassName() *string {
 	return wc.GetProperty(workspacePVCStorageClassName)
-}
-
-func (wc *ControllerConfig) IsOpenShift() bool {
-	return wc.isOpenShift
-}
-
-func (wc *ControllerConfig) SetIsOpenShift(isOpenShift bool) {
-	wc.isOpenShift = isOpenShift
 }
 
 func (wc *ControllerConfig) GetSidecarPullPolicy() string {
@@ -243,13 +235,10 @@ func buildDefaultConfigMap(cm *corev1.ConfigMap) {
 }
 
 func fillOpenShiftRouteSuffixIfNecessary(nonCachedClient client.Client, configMap *corev1.ConfigMap) error {
-	isOS, err := cluster.IsOpenShift()
-	if err != nil {
-		return err
-	}
-	if !isOS {
+	if !infrastructure.IsOpenShift() {
 		return nil
 	}
+
 	testRoute := &routeV1.Route{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: configMap.Namespace,
@@ -263,7 +252,7 @@ func fillOpenShiftRouteSuffixIfNecessary(nonCachedClient client.Client, configMa
 		},
 	}
 
-	err = nonCachedClient.Create(context.TODO(), testRoute)
+	err := nonCachedClient.Create(context.TODO(), testRoute)
 	if err != nil {
 		return err
 	}

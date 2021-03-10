@@ -15,17 +15,12 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"syscall"
 
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 
-	"syscall"
-
 	workspacev1alpha1 "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha1"
 	workspacev1alpha2 "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
-	"github.com/devfile/devworkspace-operator/internal/cluster"
-	"github.com/devfile/devworkspace-operator/pkg/config"
-	"github.com/devfile/devworkspace-operator/webhook/server"
-	"github.com/devfile/devworkspace-operator/webhook/workspace"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -34,6 +29,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
+
+	"github.com/devfile/devworkspace-operator/pkg/config"
+	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
+	"github.com/devfile/devworkspace-operator/webhook/server"
+	"github.com/devfile/devworkspace-operator/webhook/workspace"
 )
 
 var (
@@ -57,7 +57,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	namespace, err := cluster.GetWatchNamespace()
+	namespace, err := infrastructure.GetWatchNamespace()
 	if err != nil {
 		log.Error(err, "Failed to get watch namespace")
 		os.Exit(1)
