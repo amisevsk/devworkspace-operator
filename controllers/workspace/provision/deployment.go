@@ -27,6 +27,7 @@ import (
 	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
 
 	dw "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
+
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	appsv1 "k8s.io/api/apps/v1"
@@ -35,6 +36,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	k8sclient "sigs.k8s.io/controller-runtime/pkg/client"
 	runtimeClient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
@@ -119,6 +121,33 @@ func SyncDeploymentToCluster(
 		}
 	}
 
+	// Get pod and update dw status on crashloopbackoff
+	podList, err := getPods(workspace, clusterAPI.Client)
+	if err != nil {
+		return DeploymentProvisioningStatus{
+			ProvisioningStatus: ProvisioningStatus{
+				Err: err,
+			},
+		}
+	}
+
+	for _, pod := range podList.Items {
+		if pod.Status.Phase != corev1.PodPending {
+			for _, containerStatus := range pod.Status.ContainerStatuses {
+				if containerStatus.State.Waiting != nil {
+					if containerStatus.State.Waiting.Reason == constants.ContainerCrashLoopBackOffReason || containerStatus.State.Waiting.Reason == constants.ContainerImagePullErr {
+						return DeploymentProvisioningStatus{
+							ProvisioningStatus: ProvisioningStatus{
+								FailStartup: true,
+								Message:     fmt.Sprintf("Container %s has state %s", containerStatus.Name, containerStatus.State.Waiting.Reason),
+							},
+						}
+					}
+				}
+			}
+		}
+	}
+
 	deploymentReady := checkDeploymentStatus(clusterDeployment)
 	if deploymentReady {
 		return DeploymentProvisioningStatus{
@@ -127,7 +156,6 @@ func SyncDeploymentToCluster(
 			},
 		}
 	}
-
 	return DeploymentProvisioningStatus{}
 }
 
@@ -304,6 +332,16 @@ func getClusterDeployment(name string, namespace string, client runtimeClient.Cl
 		return nil, err
 	}
 	return deployment, nil
+}
+
+func getPods(workspace *dw.DevWorkspace, client runtimeClient.Client) (*corev1.PodList, error) {
+	pods := &corev1.PodList{}
+	if err := client.List(context.TODO(), pods, k8sclient.InNamespace(workspace.Namespace), k8sclient.MatchingLabels{
+		constants.DevWorkspaceIDLabel: workspace.Status.DevWorkspaceId,
+	}); err != nil {
+		return nil, err
+	}
+	return pods, nil
 }
 
 func mergePodAdditions(toMerge []v1alpha1.PodAdditions) (*v1alpha1.PodAdditions, error) {

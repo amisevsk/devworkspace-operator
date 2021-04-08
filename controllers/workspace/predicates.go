@@ -13,7 +13,11 @@
 package controllers
 
 import (
+	"github.com/devfile/devworkspace-operator/pkg/constants"
+	corev1 "k8s.io/api/core/v1"
+
 	dw "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
+
 	"k8s.io/apimachinery/pkg/api/equality"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
@@ -46,4 +50,32 @@ var predicates = predicate.Funcs{
 		return !equality.Semantic.DeepEqual(oldObj.Spec, newObj.Spec)
 	},
 	GenericFunc: func(_ event.GenericEvent) bool { return true },
+}
+
+var podPredicate = predicate.Funcs{
+	UpdateFunc: func(ev event.UpdateEvent) bool {
+		newObj, ok := ev.ObjectNew.(*corev1.Pod)
+		if !ok {
+			return true
+		}
+
+		oldObj, ok := ev.ObjectOld.(*corev1.Pod)
+		if !ok {
+			// Should never happen
+			return true
+		}
+
+		// If the dewworkspace label does not exist, do no reconcile
+		if _, ok := newObj.Labels[constants.DevWorkspaceIDLabel]; !ok {
+			return false
+		}
+
+		// Always reconcile if resource is deleted
+		if newObj.GetDeletionTimestamp() != nil {
+			return true
+		}
+
+		// Trigger a reconcile on failed workspaces if status is updated.
+		return !equality.Semantic.DeepEqual(oldObj.Status, newObj.Status)
+	},
 }

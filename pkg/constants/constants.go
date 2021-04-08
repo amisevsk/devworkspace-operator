@@ -105,4 +105,9 @@ const (
 	// AsyncStorageClassType defines the 'asynchronous' storage policy. An rsync sidecar is added to devworkspaces that uses SSH to connect
 	// to a storage deployment that mounts a common PVC for the namespace.
 	AsyncStorageClassType = "async"
+
+	// ContainerCrashLoopBackOffReason defines the container status waiting reason for CrashLoopBackOff
+	ContainerCrashLoopBackOffReason = "CrashLoopBackOff"
+
+	ContainerImagePullErr = "ImagePullErr"
 )

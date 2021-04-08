@@ -37,12 +37,15 @@ import (
 	coputil "github.com/redhat-cop/operator-utils/pkg/util"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
+	corev1 "k8s.io/api/core/v1"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	dw "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
 )
@@ -385,6 +388,21 @@ func getWorkspaceId(instance *dw.DevWorkspace) (string, error) {
 	return "workspace" + strings.Join(strings.Split(uid.String(), "-")[0:3], ""), nil
 }
 
+// Mapping the pod to the devworkspace
+func mapPodToDW(mapObj handler.MapObject) []reconcile.Request {
+	meta := mapObj.Meta
+	labels := meta.GetLabels()
+	if _, ok := labels[constants.DevWorkspaceNameLabel]; !ok {
+		return nil
+	}
+	return []reconcile.Request{
+		{NamespacedName: types.NamespacedName{
+			Name:      labels[constants.DevWorkspaceNameLabel],
+			Namespace: meta.GetNamespace(),
+		}},
+	}
+}
+
 func (r *DevWorkspaceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	// TODO: Set up indexing https://book.kubebuilder.io/cronjob-tutorial/controller-implementation.html#setup
 	return ctrl.NewControllerManagedBy(mgr).
@@ -396,6 +414,8 @@ func (r *DevWorkspaceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Owns(&appsv1.Deployment{}).
 		Owns(&batchv1.Job{}).
 		Owns(&controllerv1alpha1.DevWorkspaceRouting{}).
+		Watches(&source.Kind{Type: &corev1.Pod{}}, &handler.EnqueueRequestsFromMapFunc{ToRequests: handler.ToRequestsFunc(mapPodToDW)}).
 		WithEventFilter(predicates).
+		WithEventFilter(podPredicate).
 		Complete(r)
 }
