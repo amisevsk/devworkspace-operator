@@ -53,6 +53,17 @@ func (c *workspaceConditions) setConditionFalse(conditionType dw.DevWorkspaceCon
 	}
 }
 
+func (c *workspaceConditions) copyConditionFromDevWorkspace(conditionType dw.DevWorkspaceConditionType, dwStatus dw.DevWorkspaceStatus) {
+	for _, condition := range dwStatus.Conditions {
+		if condition.Type == conditionType {
+			c.conditions[conditionType] = dw.DevWorkspaceCondition{
+				Status:  condition.Status,
+				Message: condition.Message,
+			}
+		}
+	}
+}
+
 // getFirstFalse checks current conditions in a set order (defined by conditionOrder) and returns the first
 // condition with a 'false' status. Returns nil if there is no currently observed false condition
 func (c *workspaceConditions) getFirstFalse() *dw.DevWorkspaceCondition {

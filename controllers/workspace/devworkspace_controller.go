@@ -119,6 +119,17 @@ func (r *DevWorkspaceReconciler) Reconcile(req ctrl.Request) (reconcileResult ct
 		return reconcile.Result{Requeue: true}, err
 	}
 
+	// Stop failed workspaces
+	if workspace.Status.Phase == dw.DevWorkspaceStatusFailed && workspace.Spec.Started {
+		patch := []byte(`{"spec":{"started": false}}`)
+		err := r.Client.Patch(context.Background(), workspace, client.RawPatch(types.MergePatchType, patch))
+		if err != nil {
+			return reconcile.Result{}, err
+		}
+		// Requeue reconcile to stop workspace
+		return reconcile.Result{Requeue: true}, nil
+	}
+
 	// Handle stopped workspaces
 	if !workspace.Spec.Started {
 		timing.ClearAnnotations(workspace)
@@ -282,7 +293,13 @@ func (r *DevWorkspaceReconciler) Reconcile(req ctrl.Request) (reconcileResult ct
 	deploymentStatus := provision.SyncDeploymentToCluster(workspace, allPodAdditions, serviceAcctName, clusterAPI)
 	if !deploymentStatus.Continue {
 		if deploymentStatus.FailStartup {
-			return r.failWorkspace(workspace, fmt.Sprintf("DevWorkspace spec is invalid: %s", deploymentStatus.Err), reqLogger, &reconcileStatus)
+			var message string
+			if deploymentStatus.Err != nil {
+				message = deploymentStatus.Err.Error()
+			} else {
+				message = deploymentStatus.Message
+			}
+			return r.failWorkspace(workspace, fmt.Sprintf("DevWorkspace spec is invalid: %s", message), reqLogger, &reconcileStatus)
 		}
 		reqLogger.Info("Waiting on deployment to be ready")
 		reconcileStatus.setConditionFalse(DeploymentReady, "Waiting for workspace deployment")
@@ -312,17 +329,25 @@ func (r *DevWorkspaceReconciler) stopWorkspace(workspace *dw.DevWorkspace, logge
 		Name:      common.DeploymentName(workspace.Status.DevWorkspaceId),
 		Namespace: workspace.Namespace,
 	}
-	status := &currentStatus{}
+	status := initCurrentStatus()
+	if workspace.Status.Phase == dw.DevWorkspaceStatusFailed {
+		status.phase = dw.DevWorkspaceStatusFailed
+		status.copyConditionFromDevWorkspace(dw.DevWorkspaceFailedStart, workspace.Status)
+	}
 	err := r.Get(context.TODO(), namespaceName, workspaceDeployment)
 	if err != nil {
 		if k8sErrors.IsNotFound(err) {
-			status.phase = dw.DevWorkspaceStatusStopped
-			return r.updateWorkspaceStatus(workspace, logger, status, reconcile.Result{}, nil)
+			if workspace.Status.Phase != dw.DevWorkspaceStatusFailed {
+				status.phase = dw.DevWorkspaceStatusStopped
+			}
+			return r.updateWorkspaceStatus(workspace, logger, &status, reconcile.Result{}, nil)
 		}
 		return reconcile.Result{}, err
 	}
 
-	status.phase = dw.DevWorkspaceStatusStopping
+	if workspace.Status.Phase != dw.DevWorkspaceStatusFailed {
+		status.phase = dw.DevWorkspaceStatusStopping
+	}
 	replicas := workspaceDeployment.Spec.Replicas
 	if replicas == nil || *replicas > 0 {
 		logger.Info("Stopping workspace")
@@ -333,14 +358,16 @@ func (r *DevWorkspaceReconciler) stopWorkspace(workspace *dw.DevWorkspace, logge
 		if err != nil && !k8sErrors.IsConflict(err) {
 			return reconcile.Result{}, err
 		}
-		return r.updateWorkspaceStatus(workspace, logger, status, reconcile.Result{}, nil)
+		return r.updateWorkspaceStatus(workspace, logger, &status, reconcile.Result{}, nil)
 	}
 
 	if workspaceDeployment.Status.Replicas == 0 {
 		logger.Info("Workspace stopped")
-		status.phase = dw.DevWorkspaceStatusStopped
+		if workspace.Status.Phase != dw.DevWorkspaceStatusFailed {
+			status.phase = dw.DevWorkspaceStatusStopped
+		}
 	}
-	return r.updateWorkspaceStatus(workspace, logger, status, reconcile.Result{}, nil)
+	return r.updateWorkspaceStatus(workspace, logger, &status, reconcile.Result{}, nil)
 }
 
 // failWorkspace marks a workspace as failed by setting relevant fields in the status struct.
@@ -349,13 +376,11 @@ func (r *DevWorkspaceReconciler) stopWorkspace(workspace *dw.DevWorkspace, logge
 func (r *DevWorkspaceReconciler) failWorkspace(workspace *dw.DevWorkspace, msg string, logger logr.Logger, status *currentStatus) (reconcile.Result, error) {
 	logger.Info("Workspace start failed")
 	// Clean up cluster deployment
-	err := provision.ScaleDeploymentToZero(workspace, r.Client)
-	if err != nil {
-		// Return error here without setting phase to failed in order to retry cleaning the deployment
-		return reconcile.Result{}, err
-	}
 	status.phase = dw.DevWorkspaceStatusFailed
 	status.setConditionTrue(dw.DevWorkspaceFailedStart, msg)
+	if workspace.Spec.Started {
+		return reconcile.Result{Requeue: true}, nil
+	}
 	return reconcile.Result{}, nil
 }
 
