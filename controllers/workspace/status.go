@@ -38,30 +38,11 @@ type currentStatus struct {
 	phase dw.DevWorkspacePhase
 }
 
-func initStartingStatus() currentStatus {
-	return currentStatus{
-		workspaceConditions: workspaceConditions{
-			conditions: map[dw.DevWorkspaceConditionType]dw.DevWorkspaceCondition{},
-		},
-		phase: dw.DevWorkspaceStatusStarting,
-	}
-}
-
-// initStoppingStatus initialize the status for stopping workspace
-// it may be STOPPING or FAILED in case it's stopped automatically due workspace startup failure
-// in the second case the corresponding condition is propagated
-func initStoppingStatus(dwStatus dw.DevWorkspaceStatus) currentStatus {
-	stoppingStatus := currentStatus{workspaceConditions: workspaceConditions{
-		conditions: map[dw.DevWorkspaceConditionType]dw.DevWorkspaceCondition{},
-	}}
-
+func (c *currentStatus) copyFailedStatus(dwStatus dw.DevWorkspaceStatus) {
 	if dwStatus.Phase == dw.DevWorkspaceStatusFailed {
-		stoppingStatus.phase = dw.DevWorkspaceStatusFailed
-		stoppingStatus.copyConditionFromDevWorkspace(dw.DevWorkspaceFailedStart, dwStatus)
-	} else {
-		stoppingStatus.phase = dw.DevWorkspaceStatusStopping
+		c.phase = dw.DevWorkspaceStatusFailed
+		c.workspaceConditions.copyFailedStatus(dwStatus)
 	}
-	return stoppingStatus
 }
 
 // changeToStoppedIfNeeded changes status to stopped if needed

@@ -40,6 +40,9 @@ type workspaceConditions struct {
 }
 
 func (c *workspaceConditions) setConditionTrue(conditionType dw.DevWorkspaceConditionType, msg string) {
+	if c.conditions == nil {
+		c.conditions = map[dw.DevWorkspaceConditionType]dw.DevWorkspaceCondition{}
+	}
 	c.conditions[conditionType] = dw.DevWorkspaceCondition{
 		Status:  corev1.ConditionTrue,
 		Message: msg,
@@ -47,18 +50,26 @@ func (c *workspaceConditions) setConditionTrue(conditionType dw.DevWorkspaceCond
 }
 
 func (c *workspaceConditions) setConditionFalse(conditionType dw.DevWorkspaceConditionType, msg string) {
+	if c.conditions == nil {
+		c.conditions = map[dw.DevWorkspaceConditionType]dw.DevWorkspaceCondition{}
+	}
 	c.conditions[conditionType] = dw.DevWorkspaceCondition{
 		Status:  corev1.ConditionFalse,
 		Message: msg,
 	}
 }
 
-func (c *workspaceConditions) copyConditionFromDevWorkspace(conditionType dw.DevWorkspaceConditionType, dwStatus dw.DevWorkspaceStatus) {
-	for _, condition := range dwStatus.Conditions {
-		if condition.Type == conditionType {
-			c.conditions[conditionType] = dw.DevWorkspaceCondition{
-				Status:  condition.Status,
-				Message: condition.Message,
+func (c *workspaceConditions) copyFailedStatus(dwStatus dw.DevWorkspaceStatus) {
+	if dwStatus.Phase == dw.DevWorkspaceStatusFailed {
+		if c.conditions == nil {
+			c.conditions = map[dw.DevWorkspaceConditionType]dw.DevWorkspaceCondition{}
+		}
+		for _, condition := range dwStatus.Conditions {
+			if condition.Type == dw.DevWorkspaceFailedStart {
+				c.conditions[dw.DevWorkspaceFailedStart] = dw.DevWorkspaceCondition{
+					Status:  condition.Status,
+					Message: condition.Message,
+				}
 			}
 		}
 	}

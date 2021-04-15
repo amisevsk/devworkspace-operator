@@ -139,7 +139,9 @@ func (r *DevWorkspaceReconciler) Reconcile(req ctrl.Request) (reconcileResult ct
 	}
 
 	// Prepare handling workspace status and condition
-	reconcileStatus := initStartingStatus()
+	reconcileStatus := currentStatus{
+		phase: dw.DevWorkspaceStatusStarting,
+	}
 	clusterWorkspace := workspace.DeepCopy()
 	timingInfo := map[string]string{}
 	timing.SetTime(timingInfo, timing.DevWorkspaceStarted)
@@ -333,7 +335,12 @@ func (r *DevWorkspaceReconciler) stopWorkspace(workspace *dw.DevWorkspace, logge
 		Name:      common.DeploymentName(workspace.Status.DevWorkspaceId),
 		Namespace: workspace.Namespace,
 	}
-	status := initStoppingStatus(workspace.Status)
+	// status := initStoppingStatus(workspace.Status)
+	status := currentStatus{
+		phase: dw.DevWorkspaceStatusStopping,
+	}
+	status.copyFailedStatus(workspace.Status)
+
 	err := r.Get(context.TODO(), namespaceName, workspaceDeployment)
 	if err != nil {
 		if k8sErrors.IsNotFound(err) {
