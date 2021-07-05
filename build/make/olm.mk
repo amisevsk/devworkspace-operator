@@ -18,7 +18,8 @@ generate_olm_bundle_yaml: _check_operator_sdk_version _generate_olm_deployment_f
 		--output-dir deploy/bundle \
 		--manifests \
 		--channels fast \
-		--metadata && \
+		--verbose \
+		--metadata
 	mv bundle.Dockerfile build/
 
 ### build_bundle_image: build and push DevWorkspace Operator bundle image
