@@ -99,9 +99,10 @@ jobs:
     -
       name: Check deployment files
       run: |
-        make generate_default_deployment generate_olm_bundle_yaml
+        make generate_default_deployment
+        make generate_olm_bundle_yaml
         if [[ ! -z $(git status -s) ]]; then
-          echo 'Generated deployment files are out of date; run `make generate_default_deployment generate_olm_bundle_yaml`.'
+          echo "Generated deployment files are out of date; run 'make generate_default_deployment generate_olm_bundle_yaml'."
           echo " GitHub actions has $(which kustomize) @ $(kustomize version)"
           echo "Diff: "
           git --no-pager diff
