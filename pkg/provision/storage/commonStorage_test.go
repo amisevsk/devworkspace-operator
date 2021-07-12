@@ -100,7 +100,7 @@ func TestRewriteContainerVolumeMounts(t *testing.T) {
 	// tests := []testCase{loadTestCaseOrPanic(t, "testdata/can-make-projects-ephemeral.yaml")}
 	setupControllerCfg()
 	commonStorage := CommonStorageProvisioner{}
-	commonPVC, err := getCommonPVCSpec("test-namespace")
+	commonPVC, err := getCommonPVCSpec("test-namespace", "1Gi")
 	commonPVC.Status.Phase = corev1.ClaimBound
 	if err != nil {
 		t.Fatalf("Failure during setup: %s", err)
